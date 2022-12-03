@@ -30,8 +30,17 @@ void unimplement(SOCKET client);
 // 没有找到页面
 void not_found(SOCKET client);
 
+// 获取资源类型
+char* getContentType(const char* path);
+
+// 发送响应头
+void headers(SOCKET client, const char* type);
+
+// 发送请求的资源信息
+void cat(SOCKET client, FILE* resource);
+
 // 向客户端发送一个页面
-void server_file(SOCKET client, char* path);
+void server_file(SOCKET client, const char* path);
 
 // 处理用户请求的线程
 DWORD WINAPI accept_request(LPVOID arg);
@@ -92,7 +101,112 @@ void not_found(SOCKET client) {
 	// 向指定套接字，发送一个提示-未找到页面
 }
 
-void server_file(SOCKET client, char* path) {
+char* getContentType(const char* path) {
+	// 返回指定的文件类型
+	static char type[32] = {0};
+	int len = strlen(path);
+	int i = len;
+	for (i; i > 0; i--) {
+		if (path[i] == '.') {
+			break;
+		}
+	}
+
+	int j = 0; // 保存类型的下标
+	for (i, j; i < len && j < sizeof(type) && path[i] != '\0'; i++, j++) {
+		type[j] = path[i];
+	}
+
+	type[j] = '\0';
+
+
+	
+
+	if (strcmp(type, ".jpg") == 0) strcpy(type, "image/jpeg");
+	if (strcmp(type, ".html") == 0) strcpy(type, "text/html");
+	printf("文件类型是 %s \n", type);
+
+	return type;
+}
+
+void headers(SOCKET client, const char* type) {
+
+	// 向指定套接字，发送一个响应头
+	char buff[1024] = { 0 };
+
+	strcpy(buff, "HTTP/1.1 200 OK\r\n");
+	send(client, buff, strlen(buff), 0);
+
+	strcpy(buff, "Server: z-httpd/1.1\r\n");
+	send(client, buff, strlen(buff), 0);
+
+	// html 文件
+	if (strcmp(type, "text/html") == 0) {
+		sprintf(buff, "Content-Type: %s; charset=utf-8\r\n", type);
+	}
+	else {
+		sprintf(buff, "Content-Type: %s;\r\n", type);
+	}
+	send(client, buff, strlen(buff), 0);
+
+	strcpy(buff, "\r\n");
+	send(client, buff, strlen(buff), 0);
+}
+
+void cat(SOCKET client, FILE* resource) {
+	// 向指定套接字，发送响应体
+
+	char buff[4096] = { 0 };
+	int count = 0; // 记录读取到的字节
+
+	while (true)
+	{	
+		int ret = fread(buff, sizeof(char), sizeof(buff), resource);
+		// 没有读取到
+		if (ret <= 0) {
+			break;
+		}
+		send(client, buff, ret, 0);
+		count += ret;
+	}
+	
+	printf("一共向浏览器发送%d个字节\n", count);
+
+
+}
+
+void server_file(SOCKET client, const char* path) {
+	// 向客户端发送文件
+	int numchars = 1;
+	char buff[1024] = {0};
+
+	// 请求包的剩余数据读取完毕
+	while (numchars > 0 && strcmp(buff, "\n"))
+	{
+		numchars = get_line(client, buff, sizeof(buff));
+		PRINTF(buff);
+	}
+
+	FILE* resource = fopen(path, "rb");
+
+	// 文件不存在
+	if (resource == NULL) {
+		not_found(client);
+	}
+	else {
+		// 发送响应头
+		headers(client, getContentType(path));
+
+		// 发送请求的资源信息
+		cat(client, resource);
+
+		printf("资源发送完毕。\n");
+
+		// 关闭文件
+		fclose(resource);
+	}
+
+	
 
 }
 
@@ -237,7 +351,7 @@ DWORD WINAPI accept_request(LPVOID arg) {
 	PRINTF(method);
 
 	// 判断是否是 GET 或者 POST 请求
-	if (stricmp(method, "GET") && stricmp(method, "POST")) {
+	if (_stricmp(method, "GET") && _stricmp(method, "POST")) {
 		// 向浏览器返回一个错误页面
 		unimplement(client);
 		return 0;
