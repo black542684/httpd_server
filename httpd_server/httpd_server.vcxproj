@@ -140,9 +140,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="httpd.cpp" />
+    <ClCompile Include="public_method.cpp" />
+    <ClCompile Include="request.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="public_method.h" />
+    <ClInclude Include="request.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
