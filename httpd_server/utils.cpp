@@ -1,4 +1,33 @@
 #include "utils.h"
+/*MIME类型*/
+unordered_map<string, string> MIME = {
+	// 文本
+	{ "text", "text/plain" },
+	{ "html", "text/html" },
+	{ "css", "text/css" },
+	{ "js", "text/javascript" },
+	// 图像
+	{ "gif", "image/gif" },
+	{ "png", "image/png" },
+	{ "jpg", "image/jpeg" },
+	{ "bmp", "image/bmp" },
+	{ "webp", "image/webp" },
+	{ "ico", "image/x-icon" },
+	// 音频
+	{ "midi", "audio/midi" },
+	{ "mp3", "audio/mpeg" },
+	{ "ogg", "audio/ogg" },
+	{ "wav", "audio/x-wav" },
+	// 视频
+	{ "mov", "video/quicktime" },
+	{ "avi", "video/x-msvideo" },
+	{ "movie", "video/x-sgi-movie" },
+	{ "mpe", "video/mpeg" },
+	{ "mpeg", "video/mpeg" },
+	{ "html", "text/html" },
+	{ "html", "text/html" },
+};
+
 /*
 * 读取请求的一行
 */
@@ -68,4 +97,104 @@ void trimStart(char* str, int size, int* index) {
 			break;
 		}
 	}
+}
+
+//C++ 去字符串两边的空格
+void delete_space(std::string& s)
+{
+	if (s.empty())
+	{
+		return;
+	}
+	s.erase(0, s.find_first_not_of(" "));
+	s.erase(s.find_last_not_of(" ") + 1);
+}
+
+// 解析请求参数
+void parseQuery(unordered_map<string, string>& query, char* queryStr) {
+	char* outer_ptr = NULL;
+	char* outer_ptr_query = NULL;
+
+	char* chunk = strtok_s(queryStr, "&", &outer_ptr);
+	while (chunk)
+	{
+		char* key = strtok_s(chunk, "=", &outer_ptr_query);
+		char* value = strtok_s(NULL, "=", &outer_ptr_query);
+
+		// 保存请求参数
+		query[key] = value;
+		chunk = strtok_s(NULL, "&", &outer_ptr);
+	}
+}
+
+
+// 获取MIME类型
+char* getContentType(const char* path) {
+	// 返回指定的文件类型
+	static char type[32] = { 0 };
+	int len = strlen(path);
+	int i = len;
+	for (i; i > 0; i--) {
+		if (path[i] == '.') {
+			break;
+		}
+	}
+	i++;
+
+	int j = 0; // 保存类型的下标
+	for (i, j; i < len && j < sizeof(type) && path[i] != '\0'; i++, j++) {
+		type[j] = path[i];
+	}
+
+	type[j] = '\0';
+
+	string value;
+	try {
+		value = MIME.at(type);
+	}
+	catch (const out_of_range& e) {
+		printf("unexpected exception: %s \n", e.what());
+		value = "text/plain";
+	}
+
+	strcpy(type, value.c_str());
+
+	printf("文件类型是: %s \n", type);
+
+	return type;
+}
+
+/*
+* 页面未找到
+*/
+void not_found(SOCKET client) {
+	// 向指定套接字，发送一个提示-未找到页面
+	// 向指定套接字，发送一个响应头
+	char buff[1024] = { 0 };
+
+	strcpy(buff, "HTTP/1.1 404 Not Found\r\n");
+	send(client, buff, strlen(buff), 0);
+
+	strcpy(buff, "Server: z-httpd/1.1\r\n");
+	send(client, buff, strlen(buff), 0);
+
+	strcpy(buff, "Content-Type: %s; charset=utf-8\r\n");
+	send(client, buff, strlen(buff), 0);
+
+	strcpy(buff, "\r\n");
+	send(client, buff, strlen(buff), 0);
+
+	// 找到404页面
+	FILE* resource = fopen("htdocs/404.html", "rb");
+
+	while (true)
+	{
+		int ret = fread(buff, sizeof(char), sizeof(buff), resource);
+		// 没有读取到
+		if (ret <= 0) {
+			break;
+		}
+		send(client, buff, ret, 0);
+	}
+
 }

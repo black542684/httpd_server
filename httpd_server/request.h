@@ -4,7 +4,9 @@
 
 #include <string>
 #include <WinSock2.h>
-#include <unordered_map>
+#include <algorithm>
+#include <stdexcept>
+#include "utils.h"
 
 using namespace std;
 /*
@@ -13,8 +15,9 @@ using namespace std;
 class Request {
 private:
 	SOCKET client;
-	// 请求头信息
-	unordered_map<string, string> head;
+	
+	unordered_map<string, string> head; // 请求头信息
+	unordered_map<string, string> query; // 请求参数
 	
 	string method; // 请求方法
 	string url; // 资源路径
@@ -33,9 +36,13 @@ public:
 	string getMethods();
 	string getUrl();
 
+	bool isgzip(); // 浏览器是否支持gzip
 	
 	// 读取剩下的资源，释放内存
 	void release();
+
+	// 获取socket
+	SOCKET getSocket();
 
 	// 释放资源
 	~Request();

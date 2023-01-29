@@ -1,15 +1,14 @@
 #pragma once
 #ifndef PUBLIC_METHOD
 #define PUBLIC_METHOD
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unordered_map>
 #include <string>
-#include <stdexcept>
 #include <WinSock2.h>
+#include "request.h"
+#include "response.h"
 
 using namespace std;
 
@@ -32,12 +31,6 @@ SOCKET startup(unsigned short* port);
 // 处理错误请求
 void unimplement(SOCKET client);
 
-// 没有找到页面
-void not_found(SOCKET client);
-
-// 获取资源类型
-char* getContentType(const char* path);
-
 // 发送响应头
 void headers(SOCKET client, const char* type);
 
@@ -45,7 +38,7 @@ void headers(SOCKET client, const char* type);
 void cat(SOCKET client, FILE* resource);
 
 // 向客户端发送一个页面
-void server_file(SOCKET client, const char* path);
+void server_file(SOCKET client, const char* path, Request& request);
 
 // 处理用户请求的线程
 unsigned WINAPI accept_request(void* arg);

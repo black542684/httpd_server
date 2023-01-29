@@ -1,5 +1,4 @@
 #include "request.h"
-#include "utils.h"
 
 Request::Request() {
 	this->client = NULL;
@@ -14,8 +13,9 @@ Request::Request(SOCKET clientSock) {
 
 // 传入套接字，设置请求头信息
 void Request::setRequest(SOCKET clientSock) {
-	this->client = clientSock; // 保存socket-备用
+	this->client = clientSock; // 保存socket- 备用
 	char buff[1024] = { 0 }; // 1K
+	
 	// 读取一行数据
 	int numchars = get_line(clientSock, buff, sizeof(buff));
 	
@@ -33,6 +33,7 @@ void Request::setRequest(SOCKET clientSock) {
 
 	// 解析资源文件路径
 	char url[255] = { 0 }; // 存放完整资源路径
+
 	trimStart(buff, sizeof(buff), &j); // 跳过空格
 	i = 0; // 重置
 	while (
@@ -44,7 +45,17 @@ void Request::setRequest(SOCKET clientSock) {
 		url[i++] = buff[j++];
 	}
 	url[i] = '\0';
-	this->url = url;
+
+	char* outer_ptr = NULL;
+	// 用?分割请求参数   /api?name=zs&age=1
+	char* tmp = strtok_s(url, "?", &outer_ptr);
+	this->url = tmp; // 请求路径
+
+	// 获取请求参数
+	tmp = strtok_s(NULL, "?", &outer_ptr);
+	if (tmp) {
+		parseQuery(this->query, tmp);
+	}
 
 
 	// 读取剩下的数据，设置请求头
@@ -55,26 +66,33 @@ void Request::setRequest(SOCKET clientSock) {
 void Request::setHead(SOCKET clientSock)
 {
 	// Host: developer.mozilla.org
-	// User - Agent : Mozilla / 5.0 (Macintosh; Intel Mac OS X 10.9; rv:50.0) Gecko / 20100101 Firefox / 50.0
-	// Accept : text / html, application / xhtml + xml, application / xml; q = 0.9, */*;q=0.8
-	// Accept-Language: en-US,en;q=0.5
-	// Accept-Encoding: gzip, deflate, br
-	// Referer: https://developer.mozilla.org/testpage.html
-	// Connection: keep-alive
-	// Upgrade-Insecure-Requests: 1
-	// If-Modified-Since: Mon, 18 Jul 2016 02:36:04 GMT
-	//I f-None-Match: "c561c68d0ba92bbeb8b0fff2a9199f722e3a621a"
-	// Cache-Control: max-age=0
-	char buff[1024] = "Host: developer.mozilla.org"; // 1K
+	char buff[1024] = { 0 };
 	char* outer_ptr = NULL;
-
-	// 读取一行数据
-	// int numchars = get_line(clientSock, buff, sizeof(buff));
-	string line(buff);
 	
-	char* tmp = strtok_s(buff, ":", &outer_ptr);
+	int numchars = 1;
+	while (numchars > 0 && strcmp(buff, "\n"))
+	{
+		numchars = get_line(clientSock, buff, sizeof(buff));
+		
+		if (strcmp(buff, "\n")) { // 如果不是最后一个字符 '\n'
+			char* tmp = strtok_s(buff, ":", &outer_ptr);
+			string key(tmp);
+			delete_space(key);
+			transform(key.begin(), key.end(), key.begin(), ::tolower); // 全部转成小写
+			
 
-	
+			tmp = strtok_s(NULL, ":", &outer_ptr);
+			string value(tmp);
+			delete_space(value);
+
+			this->head[key] = value;
+		}
+	}	
+
+	/*for (unordered_map<string, string>::iterator it = this->head.begin(); it != this->head.end(); it++) {
+		printf("%s: ", it->first.c_str());
+		printf("%s \n", it->second.c_str());
+	}*/
 
 }
 
@@ -97,6 +115,28 @@ string Request::getUrl()
 	return this->url;
 }
 
+// 浏览器是否支持gzip
+bool Request::isgzip()
+{
+	bool flag = false;
+	try
+	{
+		string value = this->head.at("accept-encoding");
+		int index = value.find("gzip");
+		if (index < value.length())
+			flag = true;
+		else
+			flag = false;
+	}
+	catch (const std::out_of_range&)
+	{
+		flag = false;
+	}
+	
+	
+	return flag;
+}
+
 // 读取剩下的资源
 void Request::release()
 {
@@ -109,7 +149,13 @@ void Request::release()
 	}
 }
 
+SOCKET Request::getSocket()
+{
+	return this->client;
+}
+
 // 释放资源
 Request::~Request() {
 	this->head.clear();
+	this->query.clear();
 }

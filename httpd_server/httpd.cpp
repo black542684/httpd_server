@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "public_method.h"
 #include <process.h>
 
