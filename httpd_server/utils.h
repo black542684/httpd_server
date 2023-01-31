@@ -24,11 +24,11 @@ void delete_space(std::string& s);
 // 解析请求参数
 void parseQuery(unordered_map<string, string> &query, char* queryStr);
 
-
 // 获取MIME类型
 char* getContentType(const char* path);
 
-
+// 文件转成gzip
+bool fileToGZIP(string filePath);
 
 // 页面未找到
 void not_found(SOCKET client);

@@ -1,4 +1,6 @@
 #include "utils.h"
+#include "GZipAssistant.h"
+
 /*MIME类型*/
 unordered_map<string, string> MIME = {
 	// 文本
@@ -162,6 +164,62 @@ char* getContentType(const char* path) {
 	printf("文件类型是: %s \n", type);
 
 	return type;
+}
+
+// 文件转成gzip
+bool fileToGZIP(string filePath)
+{
+	FILE* fp = fopen(filePath.c_str(), "rb");
+	size_t count; // 读取到的文件数量
+
+	if (fp == NULL) return false;
+	char buf[1024] = { 0 };
+	string fileStr;
+	
+	printf("开始读取\n");
+	while (true)
+	{
+		count = fread(buf, sizeof(char), sizeof(buf) - 1, fp);
+		if (count == 0) {
+			break;
+		}
+		buf[count] = '\0';
+
+		fileStr.insert(fileStr.length(), buf, count);
+	}
+	printf("一共读取到：%lld字节\n", fileStr.length());
+	fclose(fp);
+	
+	//压缩：
+	GZipAssistant* gzip = GetGZipAssistant();
+	const char* pSrc = fileStr.c_str();
+	int nLenSrc = strlen(pSrc);
+
+	int nLenCompress = nLenSrc * 2;
+	char* pCompressed = new char[nLenCompress];
+	memset(pCompressed, 0, nLenCompress);
+
+
+	int nLencompressed = gzip->Compress(pSrc, nLenSrc, pCompressed, nLenCompress);
+	printf("压缩之后的大小: %d \n", nLencompressed );
+	if (nLencompressed <= 0)
+	{
+		printf("compress error.\n");
+		return false;
+	}
+
+	// 保存之后的文件名
+	string save_file = filePath + ".gz";
+	// 保存压缩后的文件
+	fp = fopen(save_file.c_str(), "wb");
+	if (fp == NULL) return false;
+	count = fwrite(pCompressed, sizeof(char), nLencompressed, fp);
+
+	printf("一共写入: %lld \n" ,count);
+	fclose(fp);
+	fileStr.shrink_to_fit(); // 释放内存
+	delete[] pCompressed;
+	return true;
 }
 
 /*

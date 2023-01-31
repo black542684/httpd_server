@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GZipAssistant.cpp" />
     <ClCompile Include="httpd.cpp" />
     <ClCompile Include="public_method.cpp" />
     <ClCompile Include="request.cpp" />
@@ -147,6 +148,7 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GZipAssistant.h" />
     <ClInclude Include="public_method.h" />
     <ClInclude Include="request.h" />
     <ClInclude Include="resource.h" />

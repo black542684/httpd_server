@@ -1,4 +1,6 @@
 #include "response.h"
+#include <iostream>
+#include <io.h>
 
 /**
 * request: 请求
@@ -6,31 +8,24 @@
 */
 Response::Response(Request& request, string folder)
 {
-	this->client = request.getSocket();
+	this->client = request.getSocket(); // 客户端套接字
 	this->folder = folder; // 设置文件夹基本路径
-	this->gzip = request.isgzip(); // 是否开启gzip
+	// this->gzip = request.isgzip(); // 是否开启gzip
 
 	
 	generatePath(request.getUrl());
 	generateMIME();
-	
-	//if (mime == "text/html") { // HTML文件不用gzip
-	//	this->gzip = false;
-	//}
-	//else {
-	//	this->gzip = request.isgzip(); // 是否开启gzip
-	//}
-
 	generateHead();
 }
 
 // 发送响应头
 void Response::sendHeaders()
 {
-	// 向指定套接字，发送一个响应头
-	string responseLine = "HTTP/1.1 200 OK\r\n";
+	// 响应行
+	string responseLine = this->protocol + this->status_code;
 	::send(this->client, responseLine.c_str(), responseLine.length(), 0);
 
+	// 响应头
 	for (auto it = head.begin(); it != head.end(); it++) {
 		string line(it->first + ": " + it->second + "\r\n");
 		::send(this->client, line.c_str(), line.length(), 0);
@@ -40,8 +35,9 @@ void Response::sendHeaders()
 }
 
 // 发送资源文件
-void Response::snedFile(FILE* resource)
+void Response::snedFile(string filePath)
 {
+	FILE* resource = fopen(filePath.c_str(), "rb");
 	// 向指定套接字，发送响应体
 	char buff[4096] = { 0 };
 	size_t count = 0; // 记录读取到的字节
@@ -61,6 +57,23 @@ void Response::snedFile(FILE* resource)
 	printf("一共发送%lld个字节\n\n\n", count);
 }
 
+// 发送gzip
+void Response::sendFileGZIP()
+{
+	string filePath(this->path + ".gz");
+	int flag = _access_s(filePath.c_str(), 0); // 判断 xxx.gz 文件是否存在
+	// 文件不存在
+	if (flag == ENOENT) {
+		bool flag = fileToGZIP(this->path); //先创建文件
+		if (!flag) { // 创建文件失败
+			filePath = this->path;
+		}
+	}
+
+	snedFile(filePath); // 发送文件
+
+}
+
 // 给客户端返回资源
 void Response::send()
 {
@@ -71,18 +84,22 @@ void Response::send()
 	// 文件不存在
 	if (this->res_is_empty == -1) {
 		not_found(this->client);
+		return;
+	}
+
+	this->sendHeaders();
+	if (this->gzip) {
+		this->sendFileGZIP();
 	}
 	else {
-		FILE* resource = fopen(this->path.c_str(), "rb");
-		this->sendHeaders();
-		this->snedFile(resource);
+		this->snedFile(this->path);
 	}
 }
 
 // 生成默认响应头
 void Response::generateHead()
 {
-	this->head["Server"] = "z-httpd/1.1";
+	this->head["Server"] = "z-httpd/0.1";
 
 	if (this->mime == "text/html") {
 		this->head["Content-Type"] = "text/html; charset=utf-8";
@@ -91,8 +108,16 @@ void Response::generateHead()
 		this->head["Content-Type"] = this->mime;
 	}
 
-	if (this->gzip) {
-		this->head["Content-Encodin"] = "gzip";
+	// 只有文本文件才开启GZIP
+	if (this->mime != "text/html" && mime != "text/plain" && mime != "text/css" && mime != "text/javascript") {
+		// printf("不开启gzip \n");
+		this->gzip = false;
+	}
+	else {
+		// printf("开启gzip \n");
+		if (this->gzip) { // 浏览器支持gzip的话
+			this->head["Content-Encoding"] = "gzip";
+		}
 	}
 
 }
@@ -105,24 +130,25 @@ void Response::generatePath(string url)
 	}
 	else {
 		this->path = this->folder + url;
-		
 	}
+
+	// 文件路径
+	string path(this->path);
+
 	// 判断path 路径的属性-文件or文件夹
 	struct stat status;
-	this->res_is_empty = stat(this->path.c_str(), &status);
+	this->res_is_empty = stat(path.c_str(), &status);
 
-	// 判断文件类型
+	// 如果是文件夹-则拼接  /docs/image   index.html
 	if ((status.st_mode & S_IFMT) == S_IFDIR) {
-		
-		// 如果是文件夹-则拼接  /docs/image index.html
 		if (this->path[this->path.length() - 1] == '/') {
 			this->path += "index.html";
 		}
 		else {
 			this->path += "/index.html";
 		}
-
 	}
+
 
 
 }

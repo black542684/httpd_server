@@ -31,14 +31,7 @@ SOCKET startup(unsigned short* port);
 // 处理错误请求
 void unimplement(SOCKET client);
 
-// 发送响应头
-void headers(SOCKET client, const char* type);
 
-// 发送请求的资源信息
-void cat(SOCKET client, FILE* resource);
-
-// 向客户端发送一个页面
-void server_file(SOCKET client, const char* path, Request& request);
 
 // 处理用户请求的线程
 unsigned WINAPI accept_request(void* arg);

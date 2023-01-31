@@ -14,7 +14,7 @@ int main(void) {
 	struct sockaddr_in client_addr; // 客户端信息
 	int client_addr_len = sizeof(client_addr);
 
-	// 循环等待socket
+	// 循环等待套接字
 	while (true)
 	{
 		// 阻塞式等待用户通过浏览器发送请求
@@ -27,6 +27,8 @@ int main(void) {
 		hThread = (HANDLE)_beginthreadex(NULL, 0, accept_request, (void *)client_socket, 0, (unsigned *)&threadId);
 
 	}
+
+	// 退出服务端套接字
 	closesocket(serv_socket);
 	return 0;
 }

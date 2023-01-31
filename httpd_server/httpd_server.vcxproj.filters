@@ -30,6 +30,9 @@
     <ClCompile Include="response.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GZipAssistant.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -45,6 +48,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="response.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GZipAssistant.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
