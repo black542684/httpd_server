@@ -15,6 +15,7 @@ private:
 	unordered_map<string, string> head; 
 private:
 	bool gzip;
+	string url;// 请求路径
 	string folder; // 文件夹
 	string path; // 文件路径
 	SOCKET client;// 套接字

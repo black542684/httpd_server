@@ -11,7 +11,7 @@ Response::Response(Request& request, string folder)
 	this->client = request.getSocket(); // 客户端套接字
 	this->folder = folder; // 设置文件夹基本路径
 	// this->gzip = request.isgzip(); // 是否开启gzip
-
+	this->url = request.getUrl();
 	
 	generatePath(request.getUrl());
 	generateMIME();
@@ -109,7 +109,7 @@ void Response::generateHead()
 	}
 
 	// 只有文本文件才开启GZIP
-	if (this->mime != "text/html" && mime != "text/plain" && mime != "text/css" && mime != "text/javascript") {
+	if (mime != "text/plain" && mime != "text/css" && mime != "text/javascript") {
 		// printf("不开启gzip \n");
 		this->gzip = false;
 	}
@@ -148,7 +148,6 @@ void Response::generatePath(string url)
 			this->path += "/index.html";
 		}
 	}
-
 
 
 }

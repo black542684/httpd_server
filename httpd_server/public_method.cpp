@@ -21,7 +21,7 @@ void unimplement(SOCKET client) {
 	strcpy(buff, "Server: z-httpd/1.1\r\n");
 	send(client, buff, strlen(buff), 0);
 
-	strcpy(buff, "Content-Type: %s; charset=utf-8\r\n");
+	strcpy(buff, "Content-Type: text/html; charset=utf-8\r\n");
 	send(client, buff, strlen(buff), 0);
 
 	strcpy(buff, "\r\n");
@@ -41,6 +41,32 @@ void unimplement(SOCKET client) {
 	}
 }
 
+/**
+* 处理OPTIONS请求
+*/
+void handle_options(SOCKET client) {
+	string line = "HTTP/1.1 204 No Content\r\n";
+	send(client, line.c_str(), line.length(), 0);
+	
+	line = "Server: z-httpd/0.1\r\n";
+	send(client, line.c_str(), line.length(), 0);
+
+	/* 允许跨域请求 */
+	line = "Access-Control-Allow-Origin: *\r\n";
+	send(client, line.c_str(), line.length(), 0);
+
+	line = "Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n";
+	send(client, line.c_str(), line.length(), 0);
+
+	line = "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, token\r\n";
+	send(client, line.c_str(), line.length(), 0);
+
+	line = "Access-Control-Max-Age: 86400\r\n";
+	send(client, line.c_str(), line.length(), 0);
+
+	line= "\r\n";
+	send(client, line.c_str(), line.length(), 0);
+}
 
 /*
 * 网络通信初始化
@@ -85,7 +111,7 @@ SOCKET startup(unsigned short* port) {
 
 
 	// 绑定套接字
-	result = bind(server_socket, (SOCKADDR*)&server_addr, sizeof(server_addr));
+	result = ::bind(server_socket, (SOCKADDR*)&server_addr, sizeof(server_addr));
 	if (result < 0) {
 		error_die("bind");
 	}
@@ -119,27 +145,76 @@ SOCKET startup(unsigned short* port) {
 */
 unsigned WINAPI accept_request(void* arg) {
 
+
 	SOCKET client = (SOCKET)arg; // 客户端套接字
 
 	Request request(client);// 请求
-	Response response(request, "htdocs"); // 响应
 
+	// 如果是OPTIONS请求
+	if (request.getMethods() == "OPTIONS") {
+		handle_options(client);
+		closesocket(client);
+		return 0;
+	}
 
 	cout << "methods " << request.getMethods() << endl;
 
+
+
 	// 判断是否是 GET 或者 POST 请求
-	if (request.getMethods() != "GET" && request.getMethods() !=  "POST") {
+	if (request.getMethods() != "GET" && request.getMethods() != "POST") {
 		// 向浏览器返回一个错误页面
 		unimplement(client);
 		closesocket(client);
 		return 0;
 	}
 
-	PRINTF(request.getUrl().c_str());
+	if (request.getMethods() == "POST") {
+		// 向浏览器返回一个错误页面
+		unimplement(client);
+		closesocket(client);
+		return 0;
+	}
 
+	// 响应
+	Response response(request, "htdocs"); 
+	PRINTF(request.getUrl().c_str());
 	response.send();
 
 	//关闭socket
 	closesocket(client);
 	return 0;
 }
+
+/**
+* 监听套接字
+*/
+void listenSocket(unsigned short port) {
+	DWORD	threadId; // 线程ID
+	HANDLE hThread; // 线程句柄
+	/*初始化socket*/
+	SOCKET serv_socket = startup(&port);
+
+	printf("http服务器初始化，正在监听%d端口... \n", port);
+
+	struct sockaddr_in client_addr; // 客户端信息
+	int client_addr_len = sizeof(client_addr);
+
+	// 循环等待套接字
+	while (true)
+	{
+		// 阻塞式等待用户通过浏览器发送请求
+		SOCKET client_socket = accept(serv_socket, (struct sockaddr*)&client_addr, &client_addr_len);
+		if (client_socket == -1) {
+			error_die("accept");
+		}
+
+		// 创建一个新进程处理客户端请求
+		hThread = (HANDLE)_beginthreadex(NULL, 0, accept_request, (void*)client_socket, 0, (unsigned*)&threadId);
+
+	}
+
+	// 退出服务端套接字
+	closesocket(serv_socket);
+}
+

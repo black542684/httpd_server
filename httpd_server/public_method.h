@@ -7,6 +7,8 @@
 #include <sys/stat.h>
 #include <string>
 #include <WinSock2.h>
+#include <process.h>
+
 #include "request.h"
 #include "response.h"
 
@@ -23,18 +25,22 @@ using namespace std;
 void error_die(const char* str);
 /**
 * 网络通信初始化
-* @param port
-* @return socket
+* @param port 端口号
+* @return socket 套接字
 */
 SOCKET startup(unsigned short* port);
 
 // 处理错误请求
 void unimplement(SOCKET client);
 
-
-
 // 处理用户请求的线程
 unsigned WINAPI accept_request(void* arg);
+
+// 监听套接字
+void listenSocket(unsigned short port);
+
+// 处理OPTIONS请求
+void handle_options(SOCKET);
 
 
 #endif // !PUBLIC_METHOD

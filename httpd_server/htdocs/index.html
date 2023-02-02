@@ -6,8 +6,16 @@
   </head>
   <body>
     <h1>Hello World!</h1>
-    <h2>Welcome to my server!</h2>
-    <img src="R-C.jpg" />
-    
+    <img src="R-C.jpg" style="width: 200px;height: 100px"/>
+    <form action="/query" method="POST" >
+      <div>
+        用户名：<input type="text" name="username" value="admin"  maxlength="10">
+      </div>
+      <div>
+        密码：<input type="password" name="password" value="123456"  maxlength="10">
+      </div>
+      <input type="submit" value="提交">  
+    </form>
+    <button id="button">发送post</button>
   </body>
 </html>

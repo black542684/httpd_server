@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "GZipAssistant.h"
+#include <iostream>
 
 /*MIME类型*/
 unordered_map<string, string> MIME = {
@@ -30,10 +31,34 @@ unordered_map<string, string> MIME = {
 	{ "html", "text/html" },
 };
 
+// 获取网络错误消息
+void getNetworkError() {
+	// 读取失败的情况
+	int id = WSAGetLastError();
+	switch (id)
+	{
+	case WSANOTINITIALISED: printf("尚未执行成功的 WSAStartup\n"); break;
+	case WSASYSNOTREADY: printf("网络子系统不可用。\n"); break;
+	case WSAHOST_NOT_FOUND: printf("找不到主机。\n"); break;
+	case WSATRY_AGAIN: printf("找不到非授权主机。\n"); break;
+	case WSANO_RECOVERY: printf("这是不可恢复的错误。\n"); break;
+	case WSAEINPROGRESS: printf("操作正在进行中。\n"); break;
+	case WSANO_DATA: printf("有效名称，没有请求类型的数据记录。\n"); break;
+	case WSAEINTR: printf("中断的函数调用。\n"); break;
+	case WSAEPROCLIM: printf("进程过多。\n");
+	case WSAEFAULT: printf("地址错误。\n");
+	case WSAENOTSOCK: printf("无效套接字上的套接字操作。提供的套接字句柄无效。\n");
+	default: printf("未知错误 id = %d\n", id); break;
+	};
+}
+
 /*
 * 读取请求的一行
 */
 int get_line(SOCKET sock, char* buff, int size) {
+	if (buff == nullptr) {
+		return 0;
+	}
 
 	char c = '\0'; // 保存读取到的一个字符
 	int i = 0; // 下标-  buff[i]
@@ -48,10 +73,10 @@ int get_line(SOCKET sock, char* buff, int size) {
 		if (n > 0) {
 			// 由于换行符是\r\n 这种格式，需要判断
 			if (c == '\r') {
-				// 查看下一个字符是不是\n
+				// 预先读取，查看下一个字符是不是\n  但不会使套接子接收队列中的数据减少
 				n = recv(sock, &c, 1, MSG_PEEK);
 				if (n > 0 && c == '\n') {
-					recv(sock, &c, 1, 0); // 正常读取
+					n = recv(sock, &c, 1, 0); // 正常读取，下一个 \n
 				}
 				else {
 					c = '\n';
@@ -60,24 +85,7 @@ int get_line(SOCKET sock, char* buff, int size) {
 			buff[i++] = c;
 		}
 		else {
-			// 读取失败的情况
-			int id = WSAGetLastError();
-			switch (id)
-			{
-			case WSANOTINITIALISED: printf("尚未执行成功的 WSAStartup\n"); break;
-			case WSASYSNOTREADY: printf("网络子系统不可用。\n"); break;
-			case WSAHOST_NOT_FOUND: printf("找不到主机。\n"); break;
-			case WSATRY_AGAIN: printf("找不到非授权主机。\n"); break;
-			case WSANO_RECOVERY: printf("这是不可恢复的错误。\n"); break;
-			case WSAEINPROGRESS: printf("操作正在进行中。\n"); break;
-			case WSANO_DATA: printf("有效名称，没有请求类型的数据记录。\n"); break;
-			case WSAEINTR: printf("中断的函数调用。\n"); break;
-			case WSAEPROCLIM: printf("进程过多。\n");
-			case WSAEFAULT: printf("地址错误。\n");
-			case WSAENOTSOCK: printf("无效套接字上的套接字操作。提供的套接字句柄无效。\n");
-			default: printf("未知错误 id = %d\n", id); break;
-			};
-			printf("收到错误.\n");
+			getNetworkError();
 			c = '\n';
 		}
 	}
@@ -86,9 +94,38 @@ int get_line(SOCKET sock, char* buff, int size) {
 	return i;
 }
 
-/*
-* 跳过空格
+/**
+* 读取请求体
 */
+int get_body(SOCKET sock, int read_count,string& body) {
+	char c = '\0'; // 保存读取到的一个字符
+	int i = 0; // 下标-  buff[i]
+	int buffLen = read_count + 1;
+	
+	char* buff = new char[buffLen];
+
+	while (i < read_count)
+	{
+		// 从缓冲区中读取一个字符
+		int n = recv(sock, &c, 1, 0);
+		// recv函数返回其实际copy的字节数，大于0表示读取到了字符
+		if (n > 0) {
+			buff[i++] = c;
+		}
+		else {
+			getNetworkError();
+			c = '\n';
+		}
+	}
+
+	buff[i] = '\0'; // 结束符
+	body.append(buff);
+
+	return i;
+}
+
+
+// 跳过空格
 void trimStart(char* str, int size, int* index) {
 	while (*index < size)
 	{
@@ -129,9 +166,9 @@ void parseQuery(unordered_map<string, string>& query, char* queryStr) {
 	}
 }
 
-
 // 获取MIME类型
 char* getContentType(const char* path) {
+	
 	// 返回指定的文件类型
 	static char type[32] = { 0 };
 	int len = strlen(path);
@@ -155,13 +192,13 @@ char* getContentType(const char* path) {
 		value = MIME.at(type);
 	}
 	catch (const out_of_range& e) {
-		printf("unexpected exception: %s \n", e.what());
+		printf("MIME 获取失败: %s \n", e.what());
 		value = "text/plain";
 	}
 
 	strcpy(type, value.c_str());
 
-	printf("文件类型是: %s \n", type);
+	//printf("文件类型是: %s \n", type);
 
 	return type;
 }
@@ -222,9 +259,8 @@ bool fileToGZIP(string filePath)
 	return true;
 }
 
-/*
-* 页面未找到
-*/
+
+// 页面未找到
 void not_found(SOCKET client) {
 	// 向指定套接字，发送一个提示-未找到页面
 	// 向指定套接字，发送一个响应头
@@ -255,4 +291,11 @@ void not_found(SOCKET client) {
 		send(client, buff, ret, 0);
 	}
 
+}
+
+// 打印map
+void printMap(unordered_map<string, string>& map) {
+	for (auto it = map.begin(); it != map.end(); it++) {
+		cout << it->first << ":" << it->second << endl;
+	}
 }

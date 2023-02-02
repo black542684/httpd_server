@@ -1,4 +1,5 @@
 #include "request.h"
+#include <iostream>
 
 Request::Request() {
 	this->client = NULL;
@@ -6,18 +7,18 @@ Request::Request() {
 	this->url = "";
 }
 
-// 传入套接字，获取请求头信息
+// 传入套接字，获取请求信息
 Request::Request(SOCKET clientSock) {
 	this->setRequest(clientSock);
 }
 
-// 传入套接字，设置请求头信息
+// 传入套接字，读取请求信息
 void Request::setRequest(SOCKET clientSock) {
 	this->client = clientSock; // 保存socket- 备用
 	char buff[1024] = { 0 }; // 1K
 	
 	// 读取一行数据
-	int numchars = get_line(clientSock, buff, sizeof(buff));
+	int numchars = get_line(clientSock, buff, sizeof(buff) - 1);
 	
 	int j = 0; // buff下标
 	int i = 0; // method下标
@@ -56,7 +57,7 @@ void Request::setRequest(SOCKET clientSock) {
 	if (tmp) {
 		parseQuery(this->query, tmp);
 	}
-
+	printf("\n请求方法：%s\n", this->method.c_str());
 
 	// 读取剩下的数据，设置请求头
 	this->setHead(clientSock);
@@ -72,34 +73,77 @@ void Request::setHead(SOCKET clientSock)
 	int numchars = 1;
 	while (numchars > 0 && strcmp(buff, "\n"))
 	{
-		numchars = get_line(clientSock, buff, sizeof(buff));
-		
-		if (strcmp(buff, "\n")) { // 如果不是最后一个字符 '\n'
-			char* tmp = strtok_s(buff, ":", &outer_ptr);
-			string key(tmp);
-			delete_space(key);
-			transform(key.begin(), key.end(), key.begin(), ::tolower); // 全部转成小写
-			
+		numchars = get_line(clientSock, buff, sizeof(buff) - 1);
 
+		if (numchars > 1 && strcmp(buff, "\n")) { // 如果不是最后一个字符 '\n'
+
+			char* tmp = strtok_s(buff, ":", &outer_ptr); // 用 : 分割   Content-tye: text/plain
+			string key(tmp);
+			delete_space(key); // 去除两端空格
+			
 			tmp = strtok_s(NULL, ":", &outer_ptr);
 			string value(tmp);
-			delete_space(value);
-
-			this->head[key] = value;
+			delete_space(value); // 去除两端空格
+			
+			if (!key.empty() && !value.empty()) {
+				this->head.emplace(key, value);
+			}
 		}
 	}	
+	
+	if (this->method == "POST") {
+		//这是里post请求
+		setBody(clientSock);
+	}
+	
+	
 
-	/*for (unordered_map<string, string>::iterator it = this->head.begin(); it != this->head.end(); it++) {
-		printf("%s: ", it->first.c_str());
-		printf("%s \n", it->second.c_str());
-	}*/
+}
 
+// 设置请求体
+void Request::setBody(SOCKET clientSock)
+{
+	string length = this->head["Content-Length"]; // 请求体长度
+	string body; // 临时保存请求体
+	int len = atoi(length.c_str()); // string-转-int
+	if (len <= 0) return;
+	
+	get_body(clientSock, len, body);
+	string contentType = this->head["Content-Type"];
+	
+	cout << "body:" << body << endl;
+	cout << "content-type:" << contentType << endl;
+
+	if (contentType.find("application/x-www-form-urlencoded") != -1) {
+		parseForm(body);
+	}
+	else if (contentType.find("application/json") != -1) {
+		parseJSON(body);
+	}
+}
+
+// // 解析form表单的提交
+void Request::parseForm(string &body)
+{
+	char* str = (char*)body.c_str();
+	parseQuery(this->body_form, str); // 解析form表单，并保存
+}
+
+// 解析json格式的提交
+void Request::parseJSON(string& body)
+{
+	this->body_json = JSON::parse(body);
+	for (JSON::iterator it = this->body_json.begin(); it != this->body_json.end(); ++it) {
+		std::cout << it.key() << " : " << it.value() << "\n";
+	}
 }
 
 
 
+
 // 获取请求信息
-string Request::getRequest() {
+string Request::getRequest()
+{
 	return string();
 }
 
@@ -121,7 +165,7 @@ bool Request::isgzip()
 	bool flag = false;
 	try
 	{
-		string value = this->head.at("accept-encoding");
+		string value = this->head.at("Accept-Encoding");
 		int index = value.find("gzip");
 		if (index < value.length())
 			flag = true;
@@ -145,7 +189,8 @@ void Request::release()
 	// 请求包的剩余数据读取完毕
 	while (numchars > 0 && strcmp(buff, "\n"))
 	{
-		numchars = get_line(client, buff, sizeof(buff));
+		printf("[%s] \n", buff);
+		numchars = get_line(client, buff, sizeof(buff) - 1);
 	}
 }
 
