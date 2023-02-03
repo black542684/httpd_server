@@ -95,7 +95,7 @@ int get_line(SOCKET sock, char* buff, int size) {
 }
 
 /**
-* 读取请求体
+* 读取请求体-文本
 */
 int get_body(SOCKET sock, int read_count,string& body) {
 	char c = '\0'; // 保存读取到的一个字符
@@ -124,6 +124,37 @@ int get_body(SOCKET sock, int read_count,string& body) {
 	return i;
 }
 
+/**
+* 读取请求体-二进制
+*/
+int get_body(SOCKET sock, int read_count, vector<char>& body) {
+	char c = '\0'; // 保存读取到的一个字符
+	int i = 0; // 下标-  buff[i]
+	int buffLen = read_count + 1;
+
+	char* buff = new char[buffLen];
+
+	while (i < read_count)
+	{
+		// 从缓冲区中读取一个字符
+		int n = recv(sock, &c, 1, 0);
+		// recv函数返回其实际copy的字节数，大于0表示读取到了字符
+		if (n > 0) {
+			buff[i++] = c;
+			body.push_back(c);
+		}
+		else {
+			getNetworkError();
+			c = '\n';
+		}
+	}
+
+	buff[i] = '\0'; // 结束符
+	
+	// body.append(buff);
+
+	return i;
+}
 
 // 跳过空格
 void trimStart(char* str, int size, int* index) {

@@ -9,18 +9,47 @@ window.onload = function () {
     let formData = new FormData();
     formData.append("name", "zs");
     formData.append("age", "40");
+
+
+
+
     const xhr = new XMLHttpRequest();
     xhr.addEventListener("load", function () {
       console.log(xhr.responseText);
     });
 
     xhr.open("POST", "http://127.0.0.1:8080/query");
-    xhr.setRequestHeader("Content-Type", "application/json");
-    let obj = {
-      name: "zs",
-      age: 12
-    };
-    xhr.send(JSON.stringify(obj));
+    // xhr.setRequestHeader("Content-Type", "text/xml");
+    
+    xhr.send(formData);
     
   });
+
+
+  const fileinput = document.querySelector("#file");
+  const uploadButton = document.querySelector("#uploadfile");
+
+  uploadButton.onclick = function () {
+    const file = fileinput.files[0];
+    if (!file) return alert("请选择一个文件");
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+
+
+
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function () {
+      console.log(xhr.responseText);
+    });
+
+    xhr.open("POST", "http://127.0.0.1:8080/query");
+    // xhr.setRequestHeader("Content-Type", "text/xml");
+    
+    xhr.send(formData);
+
+    console.log(file);
+  }
+
 }

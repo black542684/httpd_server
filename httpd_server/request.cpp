@@ -104,21 +104,32 @@ void Request::setHead(SOCKET clientSock)
 void Request::setBody(SOCKET clientSock)
 {
 	string length = this->head["Content-Length"]; // 请求体长度
-	string body; // 临时保存请求体
+	string body; // 临时保存请求体-文本文件
+	vector<char> body_binary;
+
 	int len = atoi(length.c_str()); // string-转-int
 	if (len <= 0) return;
-	
-	get_body(clientSock, len, body);
+
 	string contentType = this->head["Content-Type"];
-	
-	cout << "body:" << body << endl;
-	cout << "content-type:" << contentType << endl;
+	if (contentType.find("multipart/form-data") != -1) {
+		get_body(clientSock, len, body_binary);
+	}
+	else {
+		get_body(clientSock, len, body);
+	}
+
 
 	if (contentType.find("application/x-www-form-urlencoded") != -1) {
 		parseForm(body);
 	}
 	else if (contentType.find("application/json") != -1) {
 		parseJSON(body);
+	}
+	else if (contentType.find("text/xml") != -1) {
+		parseXML(body);
+	}
+	else if (contentType.find("multipart/form-data") != -1) {
+		cout << "size: " << body_binary.size() << endl;
 	}
 }
 
@@ -136,6 +147,12 @@ void Request::parseJSON(string& body)
 	for (JSON::iterator it = this->body_json.begin(); it != this->body_json.end(); ++it) {
 		std::cout << it.key() << " : " << it.value() << "\n";
 	}
+}
+
+// 解析XML格式的提交
+void Request::parseXML(string& body)
+{
+	this->body_xml.Parse(body.c_str());
 }
 
 

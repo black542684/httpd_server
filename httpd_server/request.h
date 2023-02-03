@@ -8,9 +8,14 @@
 #include <stdexcept>
 #include "utils.h"
 #include "../nlohmann/json.hpp"
+#include "../tinyxml2/tinyxml2.h"
+
 
 using JSON = nlohmann::json;
+using XML = tinyxml2::XMLDocument;
+
 using namespace std;
+
 /*
 * 保存请求信息
 */
@@ -25,6 +30,8 @@ private:
 private:
 	unordered_map<string, string> body_form; // 保存form表单提交的请求体
 	JSON body_json; // 保存json提交的请求体
+	XML body_xml; // 保存xml的请求体
+
 
 public:
 	Request();
@@ -40,6 +47,8 @@ public:
 	void parseForm(string& body);
 	// 解析json格式的提交
 	void parseJSON(string& body);
+	// 解析XML格式的提交
+	void parseXML(string& body);
 
 	
 	// 获取请求信息

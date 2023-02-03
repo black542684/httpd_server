@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <stdexcept>
+#include <vector>
 
 using namespace std;
 
@@ -19,8 +20,11 @@ void getNetworkError();
 // 读取请求的一行
 int get_line(SOCKET sock, char* buff, int size);
 
-// 读取请求体
+// 读取请求体-文本
 int get_body(SOCKET sock, int read_count,string& body);
+
+// 读取请求体-二进制
+int get_body(SOCKET sock, int read_count, vector<char>& body);
 
 // 跳过空格
 void trimStart(char* str, int size, int* index);
