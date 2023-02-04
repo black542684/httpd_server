@@ -9,6 +9,7 @@ window.onload = function () {
     let formData = new FormData();
     formData.append("name", "zs");
     formData.append("age", "40");
+    formData.append("name", "ls");
 
 
 

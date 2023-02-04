@@ -111,6 +111,7 @@ void Request::setBody(SOCKET clientSock)
 	if (len <= 0) return;
 
 	string contentType = this->head["Content-Type"];
+	cout << "contentType:" << contentType << endl;
 	if (contentType.find("multipart/form-data") != -1) {
 		get_body(clientSock, len, body_binary);
 	}
@@ -129,7 +130,7 @@ void Request::setBody(SOCKET clientSock)
 		parseXML(body);
 	}
 	else if (contentType.find("multipart/form-data") != -1) {
-		cout << "size: " << body_binary.size() << endl;
+		parseFormData(body_binary);
 	}
 }
 
@@ -154,6 +155,64 @@ void Request::parseXML(string& body)
 {
 	this->body_xml.Parse(body.c_str());
 }
+
+// 解析FormData格式的提交
+void Request::parseFormData(vector<char>& body)
+{
+	string contentType = this->head["Content-Type"];
+	// ; 分割 multipart/form-data; boundary=----WebKitFormBoundary5On24LeqJdcOBcBC
+	size_t index = contentType.find("=");
+	if (index == -1) return;
+	
+	
+
+	string boundary = contentType.substr(index + 1);
+	string start = "--" + boundary; // 每一个数据段开始位置
+	string end = start + "--"; // 数据段结束位置
+
+	string buff; // 文本缓存
+	vector<char> part_buff;// 二进制缓存
+
+	int startindex = 0; // 读取到的位置
+	unordered_map<string, string> partHead; // 存放part头
+	
+
+	while (true)
+	{
+		buff.clear();
+		startindex = get_line(body, buff, startindex);
+		// 读取到开始区域
+		if (buff == start) {
+			buff.clear();
+			startindex = parsePartHead(body, startindex, buff, partHead);
+		}
+		else if (buff == end) {// 读取到了结束标志
+			buff.clear();
+			break;
+		}
+		
+		if (buff.size() == 0) { // 读取内容区域 { buff.size() == 0 表示读到了\r\n }
+			buff.clear();
+
+			// 判断是文本还是 文件
+			if (partHead.count("filename") > 0) { // 如果存在filename字段，说明是一个文件
+				/* 第一种读取方式 */
+				// startindex = parsePartBody_File(body, part_buff, startindex, start, end);
+				/* 第二种读取方式 */
+				startindex = get_PartBody_File(body, part_buff, startindex);
+				cout << "文件:" << part_buff.size() << endl;
+			}
+			else {
+				startindex = get_line(body, buff, startindex);
+				cout << "不是文件:" << buff << endl;
+			}
+		}
+	}
+
+
+}
+
+
 
 
 

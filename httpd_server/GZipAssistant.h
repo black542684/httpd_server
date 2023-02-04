@@ -1,7 +1,7 @@
 #pragma once
 #ifndef CLASS_GZipAssistant
 #define CLASS_GZipAssistant
-#pragma comment(lib, "../zlib/debug/zlibwapi.lib")
+#pragma comment(lib, "../zlib/lib/zlibwapi.lib")
 
 // gzip—πÀı
 class GZipAssistant

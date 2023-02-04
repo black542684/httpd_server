@@ -5,5 +5,5 @@
 ## /nlohmann  JSON格式解析插件
 ## /tinyxml2 XML格式解析插件
 
-## /httpd_server 项目文件
+## /httpd_server 项目代码目录
 ## /httpd_server/httpd.cpp 项目入口

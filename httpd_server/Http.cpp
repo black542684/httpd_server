@@ -3,7 +3,7 @@
 
 Http::Http()
 {
-	printf("≥ı ºªØhttp class \n");
+
 }
 
 Http::~Http()

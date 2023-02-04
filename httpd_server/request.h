@@ -49,6 +49,8 @@ public:
 	void parseJSON(string& body);
 	// 解析XML格式的提交
 	void parseXML(string& body);
+	// 解析FormData格式的提交
+	void parseFormData(vector<char>& body);
 
 	
 	// 获取请求信息
