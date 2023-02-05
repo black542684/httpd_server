@@ -9,6 +9,7 @@
 #include <WinSock2.h>
 #include <process.h>
 
+#include "Http.h"
 #include "request.h"
 #include "response.h"
 
@@ -40,7 +41,7 @@ unsigned WINAPI accept_request(void* arg);
 void listenSocket(unsigned short port);
 
 // ¥¶¿ÌOPTIONS«Î«Û
-void handle_options(SOCKET);
+void handle_options(SOCKET, Response&);
 
 
 #endif // !PUBLIC_METHOD

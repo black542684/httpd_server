@@ -9,6 +9,7 @@ unordered_map<string, string> MIME = {
 	{ "html", "text/html" },
 	{ "css", "text/css" },
 	{ "js", "text/javascript" },
+	{ "json", "application/json" },
 	// 图像
 	{ "gif", "image/gif" },
 	{ "png", "image/png" },
@@ -204,9 +205,6 @@ int parsePartHead(vector<char>& body, int index, string& buff, unordered_map<str
 			chunk = strtok_s(NULL, ";", &outer_ptr); // 以；分割
 
 			partHead.emplace(key, value); // 保存part头
-			cout << "cun:" << cun << endl;
-			printf("key:%s\n", key.c_str());
-			printf("value:%s\n", value.c_str());
 		}
 	}
 
@@ -441,17 +439,10 @@ bool fileToGZIP(string filePath)
 	fclose(fp);
 	
 	//压缩：
-	GZipAssistant* gzip = GetGZipAssistant();
-	const char* pSrc = fileStr.c_str();
-	int nLenSrc = strlen(pSrc);
+	int nLencompressed = stringToGZIP(fileStr);
 
-	int nLenCompress = nLenSrc * 2;
-	char* pCompressed = new char[nLenCompress];
-	memset(pCompressed, 0, nLenCompress);
+	const char* pCompressed = fileStr.c_str();
 
-
-	int nLencompressed = gzip->Compress(pSrc, nLenSrc, pCompressed, nLenCompress);
-	printf("压缩之后的大小: %d \n", nLencompressed );
 	if (nLencompressed <= 0)
 	{
 		printf("compress error.\n");
@@ -467,10 +458,39 @@ bool fileToGZIP(string filePath)
 
 	printf("一共写入: %lld \n" ,count);
 	fclose(fp);
-	fileStr.shrink_to_fit(); // 释放内存
 	delete[] pCompressed;
 	return true;
 }
+
+// 字符串gzip压缩
+int stringToGZIP(string& str)
+{
+	GZipAssistant* gzip = GetGZipAssistant();
+	// 压缩前
+	const char* pSrc = str.c_str();
+	int nLenSrc = strlen(pSrc);
+	cout << "压缩前: " << nLenSrc << endl;
+	// 保存压缩后的数据
+	int nLenCompress = nLenSrc * 2;
+	char* pCompressed = new char[nLenCompress];
+	memset(pCompressed, 0, nLenCompress);
+
+	int nLencompressed = gzip->Compress(pSrc, nLenSrc, pCompressed, nLenCompress);
+	cout << "压缩后: " << nLencompressed << endl;
+
+	string gzipStr;
+	for (int i = 0; i < nLencompressed; i++) {
+		gzipStr.push_back(pCompressed[i]);
+	}
+
+	str.swap(gzipStr);
+
+	gzipStr.clear();
+	delete[] pCompressed;
+
+	return nLencompressed;
+}
+
 
 
 // 页面未找到

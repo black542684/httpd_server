@@ -7,6 +7,8 @@
 #include <algorithm>
 #include <stdexcept>
 #include "utils.h"
+#include "FormDataField.h"
+#include "FormDataFile.h"
 #include "../nlohmann/json.hpp"
 #include "../tinyxml2/tinyxml2.h"
 
@@ -27,11 +29,17 @@ private:
 private:
 	string method; // 请求方法
 	string url; // 资源路径
+public:
+	string path; // 请求路径
+
 private:
 	unordered_map<string, string> body_form; // 保存form表单提交的请求体
 	JSON body_json; // 保存json提交的请求体
 	XML body_xml; // 保存xml的请求体
-
+	
+	/* form-data */
+	vector<FormDataField> fields; // 参数对象
+	vector<FormDataFile> files; // 文件对象 
 
 public:
 	Request();

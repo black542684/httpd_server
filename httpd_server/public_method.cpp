@@ -44,25 +44,17 @@ void unimplement(SOCKET client) {
 /**
 * 处理OPTIONS请求
 */
-void handle_options(SOCKET client) {
+void handle_options(SOCKET client, Response& res) {
+
+	unordered_map<std::string, std::string> head = res.getHeader();
+
 	string line = "HTTP/1.1 204 No Content\r\n";
 	send(client, line.c_str(), line.length(), 0);
 	
-	line = "Server: z-httpd/0.1\r\n";
-	send(client, line.c_str(), line.length(), 0);
-
-	/* 允许跨域请求 */
-	line = "Access-Control-Allow-Origin: *\r\n";
-	send(client, line.c_str(), line.length(), 0);
-
-	line = "Access-Control-Allow-Methods: POST, GET, OPTIONS\r\n";
-	send(client, line.c_str(), line.length(), 0);
-
-	line = "Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, token\r\n";
-	send(client, line.c_str(), line.length(), 0);
-
-	line = "Access-Control-Max-Age: 86400\r\n";
-	send(client, line.c_str(), line.length(), 0);
+	for (auto it = head.begin(); it != head.end(); it++) {
+		line = it->first + ": " + it->second + "\r\n";
+		send(client, line.c_str(), line.length(), 0);
+	}
 
 	line= "\r\n";
 	send(client, line.c_str(), line.length(), 0);
@@ -145,41 +137,57 @@ SOCKET startup(unsigned short* port) {
 */
 unsigned WINAPI accept_request(void* arg) {
 
+	Http* app = getHttp();
 
 	SOCKET client = (SOCKET)arg; // 客户端套接字
 
-	Request request(client);// 请求
-
-	// 如果是OPTIONS请求
-	if (request.getMethods() == "OPTIONS") {
-		handle_options(client);
-		closesocket(client);
-		return 0;
-	}
-
-	cout << "methods " << request.getMethods() << endl;
-
+	// 请求
+	Request request(client);
+	// 响应
+	Response response(request, app->getStatic());
+	cout << "methods:" << request.getMethods() << "  " << "path:" << request.path << endl;
 
 
 	// 判断是否是 GET 或者 POST 请求
-	if (request.getMethods() != "GET" && request.getMethods() != "POST") {
+	if (request.getMethods() != "GET" && request.getMethods() != "POST" && request.getMethods() != "OPTIONS") {
 		// 向浏览器返回一个错误页面
 		unimplement(client);
 		closesocket(client);
 		return 0;
 	}
 
-	if (request.getMethods() == "POST") {
-		// 向浏览器返回一个错误页面
-		unimplement(client);
-		closesocket(client);
-		return 0;
+	HandleFUNC allFunc = app->all("*");
+	if (allFunc) {
+		allFunc(request, response);
+	}
+	allFunc = app->all(request.path);
+	if (allFunc) {
+		allFunc(request, response);
 	}
 
-	// 响应
-	Response response(request, "htdocs"); 
+	// 如果是OPTIONS请求
+	if (request.getMethods() == "OPTIONS") {
+		handle_options(client, response);
+
+	} else if (request.getMethods() == "GET") {
+		allFunc = app->get(request.path);
+		if (allFunc) {
+			allFunc(request, response);
+		}
+		else {
+			// 静态资源
+			response.send();
+		}
+
+	} else if (request.getMethods() == "POST") {
+		allFunc = app->post(request.path);
+		if (allFunc) {
+			allFunc(request, response);
+		}
+	}
+
 	PRINTF(request.getUrl().c_str());
-	response.send();
+	
 
 	//关闭socket
 	closesocket(client);

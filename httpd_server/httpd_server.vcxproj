@@ -144,6 +144,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\tinyxml2\tinyxml2.cpp" />
+    <ClCompile Include="FormDataField.cpp" />
+    <ClCompile Include="FormDataFile.cpp" />
     <ClCompile Include="GZipAssistant.cpp" />
     <ClCompile Include="Http.cpp" />
     <ClCompile Include="httpd.cpp" />
@@ -153,11 +155,12 @@
     <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FormDataField.h" />
+    <ClInclude Include="FormDataFile.h" />
     <ClInclude Include="GZipAssistant.h" />
     <ClInclude Include="Http.h" />
     <ClInclude Include="public_method.h" />
     <ClInclude Include="request.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="response.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

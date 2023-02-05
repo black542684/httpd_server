@@ -83,6 +83,9 @@ char* getContentType(const char* path);
 // 文件转成gzip
 bool fileToGZIP(string filePath);
 
+// 字符串gzip压缩
+int stringToGZIP(string& str);
+
 // 页面未找到
 void not_found(SOCKET client);
 

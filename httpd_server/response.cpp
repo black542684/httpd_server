@@ -2,6 +2,11 @@
 #include <iostream>
 #include <io.h>
 
+Response::Response()
+{
+
+}
+
 /**
 * request: 请求
 * folder: 默认文件夹
@@ -74,6 +79,17 @@ void Response::sendFileGZIP()
 
 }
 
+// 发送文本
+void Response::sendText(string str)
+{
+	if (this->gzip) {
+		stringToGZIP(str);
+	}
+	
+	// 向套接字发送数据
+	::send(this->client, str.c_str(), str.length(), 0);
+}
+
 // 给客户端返回资源
 void Response::send()
 {
@@ -94,6 +110,36 @@ void Response::send()
 	else {
 		this->snedFile(this->path);
 	}
+}
+
+// 给客户端返回字符串
+void Response::send(string content)
+{
+	int b = 1;
+	int kb = 1024 * b;
+	if (content.size() < kb) { // 如果小于1kb则关闭gzip
+		setGZIP(false);
+	}
+	this->sendHeaders();
+	this->sendText(content);
+}
+
+// 设置响应头
+void Response::header(string key, string value)
+{
+	this->head[key] = value;
+}
+
+// 返回响应头
+unordered_map<string, string> Response::getHeader()
+{
+	return this->head;
+}
+
+void Response::setGZIP(bool flag)
+{
+	this->gzip = flag;
+	this->head.erase("Content-Encoding");
 }
 
 // 生成默认响应头

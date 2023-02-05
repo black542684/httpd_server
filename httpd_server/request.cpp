@@ -50,14 +50,14 @@ void Request::setRequest(SOCKET clientSock) {
 	char* outer_ptr = NULL;
 	// 用?分割请求参数   /api?name=zs&age=1
 	char* tmp = strtok_s(url, "?", &outer_ptr);
-	this->url = tmp; // 请求路径
+	this->url = tmp; // 请求资源路径
+	this->path = tmp; // 请求路径
 
 	// 获取请求参数
 	tmp = strtok_s(NULL, "?", &outer_ptr);
 	if (tmp) {
 		parseQuery(this->query, tmp);
 	}
-	printf("\n请求方法：%s\n", this->method.c_str());
 
 	// 读取剩下的数据，设置请求头
 	this->setHead(clientSock);
@@ -110,8 +110,7 @@ void Request::setBody(SOCKET clientSock)
 	int len = atoi(length.c_str()); // string-转-int
 	if (len <= 0) return;
 
-	string contentType = this->head["Content-Type"];
-	cout << "contentType:" << contentType << endl;
+	string contentType = this->head["Content-Type"]; // 判断form-data
 	if (contentType.find("multipart/form-data") != -1) {
 		get_body(clientSock, len, body_binary);
 	}
@@ -119,7 +118,7 @@ void Request::setBody(SOCKET clientSock)
 		get_body(clientSock, len, body);
 	}
 
-
+	// 处理4种不同的post请求提交方式
 	if (contentType.find("application/x-www-form-urlencoded") != -1) {
 		parseForm(body);
 	}
@@ -164,8 +163,6 @@ void Request::parseFormData(vector<char>& body)
 	size_t index = contentType.find("=");
 	if (index == -1) return;
 	
-	
-
 	string boundary = contentType.substr(index + 1);
 	string start = "--" + boundary; // 每一个数据段开始位置
 	string end = start + "--"; // 数据段结束位置
@@ -183,6 +180,7 @@ void Request::parseFormData(vector<char>& body)
 		startindex = get_line(body, buff, startindex);
 		// 读取到开始区域
 		if (buff == start) {
+			partHead.clear();
 			buff.clear();
 			startindex = parsePartHead(body, startindex, buff, partHead);
 		}
@@ -198,13 +196,43 @@ void Request::parseFormData(vector<char>& body)
 			if (partHead.count("filename") > 0) { // 如果存在filename字段，说明是一个文件
 				/* 第一种读取方式 */
 				// startindex = parsePartBody_File(body, part_buff, startindex, start, end);
+				
 				/* 第二种读取方式 */
 				startindex = get_PartBody_File(body, part_buff, startindex);
-				cout << "文件:" << part_buff.size() << endl;
+				FormDataFile file;
+				if (partHead.count("Content-Disposition")) {
+					file.contentDisposition = partHead["Content-Disposition"];
+				}
+				if (partHead.count("name")) {
+					file.contentDisposition = partHead["name"];
+				}
+				if (partHead.count("filename")) {
+					file.contentDisposition = partHead["filename"];
+				}
+				if (partHead.count("Content-Type")) {
+					file.contentDisposition = partHead["Content-Type"];
+				}
+				file.value.swap(part_buff);
+
+				this->files.push_back(file); // 保存文件对象
 			}
 			else {
 				startindex = get_line(body, buff, startindex);
-				cout << "不是文件:" << buff << endl;
+				FormDataField field;
+				if (partHead.count("Content-Disposition")) {
+					field.contentDisposition = partHead["Content-Disposition"];
+				}
+				if (partHead.count("name")) {
+					field.contentDisposition = partHead["name"];
+				}
+				if (partHead.count("filename")) {
+					field.contentDisposition = partHead["filename"];
+				}
+				if (partHead.count("Content-Type")) {
+					field.contentDisposition = partHead["Content-Type"];
+				}
+				field.value.swap(buff);
+				this->fields.push_back(field); // 保存参数对象
 			}
 		}
 	}

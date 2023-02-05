@@ -13,24 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="类">
+      <UniqueIdentifier>{2e1f81bb-4889-428f-84fc-1411283b1c42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="工具函数">
+      <UniqueIdentifier>{ba80e542-01b9-40db-b86d-83af49708f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="类\头文件">
+      <UniqueIdentifier>{967badf1-a3c2-48f1-8c56-91f6f87ffbd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="类\源文件">
+      <UniqueIdentifier>{7efbd0d9-ad81-4cee-8f84-0471aab9ca84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="工具函数\源文件">
+      <UniqueIdentifier>{aa860c1a-bc61-414a-befd-e8a94ca0351b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="工具函数\头文件">
+      <UniqueIdentifier>{073651d1-07d6-413d-bb82-171822e732d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="httpd.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="public_method.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="request.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="utils.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="response.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="GZipAssistant.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Http.cpp">
@@ -39,28 +42,52 @@
     <ClCompile Include="..\tinyxml2\tinyxml2.cpp">
       <Filter>资源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GZipAssistant.cpp">
+      <Filter>类\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="request.cpp">
+      <Filter>类\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="response.cpp">
+      <Filter>类\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="public_method.cpp">
+      <Filter>工具函数\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>工具函数\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FormDataField.cpp">
+      <Filter>类\源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FormDataFile.cpp">
+      <Filter>类\源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="public_method.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="request.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="utils.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="response.h">
+    <ClInclude Include="Http.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="GZipAssistant.h">
-      <Filter>头文件</Filter>
+      <Filter>类\头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Http.h">
-      <Filter>头文件</Filter>
+    <ClInclude Include="request.h">
+      <Filter>类\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="response.h">
+      <Filter>类\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="public_method.h">
+      <Filter>工具函数\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>工具函数\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FormDataField.h">
+      <Filter>类\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FormDataFile.h">
+      <Filter>类\头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
