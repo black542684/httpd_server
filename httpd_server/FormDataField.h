@@ -6,15 +6,15 @@
 using namespace std;
 
 /*
-* form-data ×Ö¶ÎÀàĞÍ
+* form-data å­—æ®µç±»å‹
 */
 class FormDataField
 {
 public:
 	string contentDisposition;
 	string contentType;
-	string name; // ×Ö¶ÎÃû
-	string value;// ×Ö¶ÎÖµ
+	string name; // å­—æ®µå
+	string value;// å­—æ®µå€¼
 };
 
 #endif // !FORM_DATA_FIELD

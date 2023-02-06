@@ -3,16 +3,16 @@
 #define CLASS_GZipAssistant
 #pragma comment(lib, "../zlib/lib/zlibwapi.lib")
 
-// gzipÑ¹Ëõ
+// gzipå‹ç¼©
 class GZipAssistant
 {
 public:
 	GZipAssistant();
 	~GZipAssistant();
 public:
-	// Ñ¹Ëõ
+	// å‹ç¼©
 	int Compress(const char* src, int srcLen, char* dest, int destLen);
-	// ½âÑ¹Ëõ
+	// è§£å‹ç¼©
 	int Decompress(const char* src, int srcLen, const char* dst, int dstLen);
 
 	static GZipAssistant* GetInstance()
