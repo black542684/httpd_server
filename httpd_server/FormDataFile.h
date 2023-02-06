@@ -6,16 +6,16 @@
 
 using namespace std;
 /*
-* form-data ÎÄ¼şÀàĞÍ
+* form-data æ–‡ä»¶ç±»å‹
 */
 class FormDataFile
 {
 public:
 	string contentDisposition;
 	string contentType;
-	string name; // ×Ö¶ÎÃû
-	string filename; // ÉÏ´«µÄÎÄ¼şÃû³Æ
-	vector<char> value; // ÎÄ¼ş
+	string name; // å­—æ®µå
+	string filename; // ä¸Šä¼ çš„æ–‡ä»¶åç§°
+	vector<char> value; // æ–‡ä»¶
 };
 
 #endif // !FORM_DATA_FILE

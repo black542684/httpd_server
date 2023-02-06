@@ -4,43 +4,43 @@
 #include "request.h"
 #include "utils.h"
 
-// ÏìÓ¦
+// å“åº”
 class Response
 {
 private:
-	// ÏìÓ¦ĞĞ
-	string protocol = "HTTP/1.1 "; // Ğ­ÒéºÍ°æ±¾
-	string status_code = "200 OK\r\n"; // ×´Ì¬ÂëºÍ×´Ì¬ÃèÊö														 
-	unordered_map<string, string> head; // ÏìÓ¦Í·
+	// å“åº”è¡Œ
+	string protocol = "HTTP/1.1 "; // åè®®å’Œç‰ˆæœ¬
+	string status_code = "200 OK\r\n"; // çŠ¶æ€ç å’ŒçŠ¶æ€æè¿°														 
+	unordered_map<string, string> head; // å“åº”å¤´
 
 private:
 	bool gzip;
-	string url;// ÇëÇóÂ·¾¶
-	string folder; // ÎÄ¼ş¼Ğ
-	string path; // ÎÄ¼şÂ·¾¶
-	SOCKET client;// Ì×½Ó×Ö
+	string url;// è¯·æ±‚è·¯å¾„
+	string folder; // æ–‡ä»¶å¤¹
+	string path; // æ–‡ä»¶è·¯å¾„
+	SOCKET client;// å¥—æ¥å­—
 	string mime; // content-type
-	int res_is_empty; // ×ÊÔ´ÊÇ·ñ´æÔÚ -1 ²»´æÔÚ
+	int res_is_empty; // èµ„æºæ˜¯å¦å­˜åœ¨ -1 ä¸å­˜åœ¨
 	
 
 public:
 	Response();
 	Response(Request& request, string folder);
-	void send(); // ¸ø¿Í»§¶Ë·µ»Ø×ÊÔ´
-	void send(string); // ¸ø¿Í»§¶Ë·µ»Ø×Ö·û´®
-	void header(string key, string value); // ÉèÖÃÏìÓ¦Í·
-	unordered_map<string, string> getHeader(); // ·µ»ØÏìÓ¦Í·
-	void setGZIP(bool); // ÉèÖÃgzip
+	void send(); // ç»™å®¢æˆ·ç«¯è¿”å›èµ„æº
+	void send(string); // ç»™å®¢æˆ·ç«¯è¿”å›å­—ç¬¦ä¸²
+	void header(string key, string value); // è®¾ç½®å“åº”å¤´
+	unordered_map<string, string> getHeader(); // è¿”å›å“åº”å¤´
+	void setGZIP(bool); // è®¾ç½®gzip
 
 private:
-	void sendHeaders(); // ·¢ËÍÏìÓ¦Í·
-	void snedFile(string filePath); // ·¢ËÍ×ÊÔ´ÎÄ¼ş
-	void sendFileGZIP(); // ·¢ËÍGZIP×ÊÔ´ÎÄ¼ş
-	void sendText(string);// ·¢ËÍÎÄ±¾
+	void sendHeaders(); // å‘é€å“åº”å¤´
+	void snedFile(string filePath); // å‘é€èµ„æºæ–‡ä»¶
+	void sendFileGZIP(); // å‘é€GZIPèµ„æºæ–‡ä»¶
+	void sendText(string);// å‘é€æ–‡æœ¬
 	
-	void generateHead(); // Éú³ÉÄ¬ÈÏÏìÓ¦Í·
-	void generatePath(string url);  // Éú³ÉÇëÇóÎÄ¼şÂ·¾¶
-	void generateMIME(); // Éú³ÉÊı¾İÀàĞÍ
+	void generateHead(); // ç”Ÿæˆé»˜è®¤å“åº”å¤´
+	void generatePath(string url);  // ç”Ÿæˆè¯·æ±‚æ–‡ä»¶è·¯å¾„
+	void generateMIME(); // ç”Ÿæˆæ•°æ®ç±»å‹
 };
 #endif // !RESPONSE
 

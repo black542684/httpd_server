@@ -8,14 +8,14 @@ Response::Response()
 }
 
 /**
-* request: ÇëÇó
-* folder: Ä¬ÈÏÎÄ¼ş¼Ğ
+* request: è¯·æ±‚
+* folder: é»˜è®¤æ–‡ä»¶å¤¹
 */
 Response::Response(Request& request, string folder)
 {
-	this->client = request.getSocket(); // ¿Í»§¶ËÌ×½Ó×Ö
-	this->folder = folder; // ÉèÖÃÎÄ¼ş¼Ğ»ù±¾Â·¾¶
-	// this->gzip = request.isgzip(); // ÊÇ·ñ¿ªÆôgzip
+	this->client = request.getSocket(); // å®¢æˆ·ç«¯å¥—æ¥å­—
+	this->folder = folder; // è®¾ç½®æ–‡ä»¶å¤¹åŸºæœ¬è·¯å¾„
+	// this->gzip = request.isgzip(); // æ˜¯å¦å¼€å¯gzip
 	this->url = request.getUrl();
 	
 	generatePath(request.getUrl());
@@ -23,14 +23,14 @@ Response::Response(Request& request, string folder)
 	generateHead();
 }
 
-// ·¢ËÍÏìÓ¦Í·
+// å‘é€å“åº”å¤´
 void Response::sendHeaders()
 {
-	// ÏìÓ¦ĞĞ
+	// å“åº”è¡Œ
 	string responseLine = this->protocol + this->status_code;
 	::send(this->client, responseLine.c_str(), responseLine.length(), 0);
 
-	// ÏìÓ¦Í·
+	// å“åº”å¤´
 	for (auto it = head.begin(); it != head.end(); it++) {
 		string line(it->first + ": " + it->second + "\r\n");
 		::send(this->client, line.c_str(), line.length(), 0);
@@ -39,65 +39,65 @@ void Response::sendHeaders()
 	::send(this->client, over.c_str(), over.length(), 0);
 }
 
-// ·¢ËÍ×ÊÔ´ÎÄ¼ş
+// å‘é€èµ„æºæ–‡ä»¶
 void Response::snedFile(string filePath)
 {
 	FILE* resource = fopen(filePath.c_str(), "rb");
-	// ÏòÖ¸¶¨Ì×½Ó×Ö£¬·¢ËÍÏìÓ¦Ìå
+	// å‘æŒ‡å®šå¥—æ¥å­—ï¼Œå‘é€å“åº”ä½“
 	char buff[4096] = { 0 };
-	size_t count = 0; // ¼ÇÂ¼¶ÁÈ¡µ½µÄ×Ö½Ú
+	size_t count = 0; // è®°å½•è¯»å–åˆ°çš„å­—èŠ‚
 
 	while (true)
 	{
 		size_t ret = fread(buff, sizeof(char), sizeof(buff), resource);
-		// Ã»ÓĞ¶ÁÈ¡µ½
+		// æ²¡æœ‰è¯»å–åˆ°
 		if (ret <= 0) {
 			break;
 		}
-		// ÏòÌ×½Ó×Ö·¢ËÍÊı¾İ
+		// å‘å¥—æ¥å­—å‘é€æ•°æ®
 		::send(this->client, buff, ret, 0);
 		count += ret;
 	}
 
-	printf("Ò»¹²·¢ËÍ%lld¸ö×Ö½Ú\n\n\n", count);
+	printf("ä¸€å…±å‘é€%lldä¸ªå­—èŠ‚\n\n\n", count);
 }
 
-// ·¢ËÍgzip
+// å‘é€gzip
 void Response::sendFileGZIP()
 {
 	string filePath(this->path + ".gz");
-	int flag = _access_s(filePath.c_str(), 0); // ÅĞ¶Ï xxx.gz ÎÄ¼şÊÇ·ñ´æÔÚ
-	// ÎÄ¼ş²»´æÔÚ
+	int flag = _access_s(filePath.c_str(), 0); // åˆ¤æ–­ xxx.gz æ–‡ä»¶æ˜¯å¦å­˜åœ¨
+	// æ–‡ä»¶ä¸å­˜åœ¨
 	if (flag == ENOENT) {
-		bool flag = fileToGZIP(this->path); //ÏÈ´´½¨ÎÄ¼ş
-		if (!flag) { // ´´½¨ÎÄ¼şÊ§°Ü
+		bool flag = fileToGZIP(this->path); //å…ˆåˆ›å»ºæ–‡ä»¶
+		if (!flag) { // åˆ›å»ºæ–‡ä»¶å¤±è´¥
 			filePath = this->path;
 		}
 	}
 
-	snedFile(filePath); // ·¢ËÍÎÄ¼ş
+	snedFile(filePath); // å‘é€æ–‡ä»¶
 
 }
 
-// ·¢ËÍÎÄ±¾
+// å‘é€æ–‡æœ¬
 void Response::sendText(string str)
 {
 	if (this->gzip) {
 		stringToGZIP(str);
 	}
 	
-	// ÏòÌ×½Ó×Ö·¢ËÍÊı¾İ
+	// å‘å¥—æ¥å­—å‘é€æ•°æ®
 	::send(this->client, str.c_str(), str.length(), 0);
 }
 
-// ¸ø¿Í»§¶Ë·µ»Ø×ÊÔ´
+// ç»™å®¢æˆ·ç«¯è¿”å›èµ„æº
 void Response::send()
 {
-	// Ïò¿Í»§¶Ë·¢ËÍÎÄ¼ş
+	// å‘å®¢æˆ·ç«¯å‘é€æ–‡ä»¶
 	int numchars = 1;
 	char buff[1024] = { 0 };
 
-	// ÎÄ¼ş²»´æÔÚ
+	// æ–‡ä»¶ä¸å­˜åœ¨
 	if (this->res_is_empty == -1) {
 		not_found(this->client);
 		return;
@@ -112,25 +112,25 @@ void Response::send()
 	}
 }
 
-// ¸ø¿Í»§¶Ë·µ»Ø×Ö·û´®
+// ç»™å®¢æˆ·ç«¯è¿”å›å­—ç¬¦ä¸²
 void Response::send(string content)
 {
 	int b = 1;
 	int kb = 1024 * b;
-	if (content.size() < kb) { // Èç¹ûĞ¡ÓÚ1kbÔò¹Ø±Õgzip
+	if (content.size() < kb) { // å¦‚æœå°äº1kbåˆ™å…³é—­gzip
 		setGZIP(false);
 	}
 	this->sendHeaders();
 	this->sendText(content);
 }
 
-// ÉèÖÃÏìÓ¦Í·
+// è®¾ç½®å“åº”å¤´
 void Response::header(string key, string value)
 {
 	this->head[key] = value;
 }
 
-// ·µ»ØÏìÓ¦Í·
+// è¿”å›å“åº”å¤´
 unordered_map<string, string> Response::getHeader()
 {
 	return this->head;
@@ -142,7 +142,7 @@ void Response::setGZIP(bool flag)
 	this->head.erase("Content-Encoding");
 }
 
-// Éú³ÉÄ¬ÈÏÏìÓ¦Í·
+// ç”Ÿæˆé»˜è®¤å“åº”å¤´
 void Response::generateHead()
 {
 	this->head["Server"] = "z-httpd/0.1";
@@ -154,21 +154,21 @@ void Response::generateHead()
 		this->head["Content-Type"] = this->mime;
 	}
 
-	// Ö»ÓĞÎÄ±¾ÎÄ¼ş²Å¿ªÆôGZIP
+	// åªæœ‰æ–‡æœ¬æ–‡ä»¶æ‰å¼€å¯GZIP
 	if (mime != "text/plain" && mime != "text/css" && mime != "text/javascript") {
-		// printf("²»¿ªÆôgzip \n");
+		// printf("ä¸å¼€å¯gzip \n");
 		this->gzip = false;
 	}
 	else {
-		// printf("¿ªÆôgzip \n");
-		if (this->gzip) { // ä¯ÀÀÆ÷Ö§³ÖgzipµÄ»°
+		// printf("å¼€å¯gzip \n");
+		if (this->gzip) { // æµè§ˆå™¨æ”¯æŒgzipçš„è¯
 			this->head["Content-Encoding"] = "gzip";
 		}
 	}
 
 }
 
-// Éú³ÉÇëÇóÎÄ¼şÂ·¾¶
+// ç”Ÿæˆè¯·æ±‚æ–‡ä»¶è·¯å¾„
 void Response::generatePath(string url)
 {
 	if (url == "/") {
@@ -178,14 +178,14 @@ void Response::generatePath(string url)
 		this->path = this->folder + url;
 	}
 
-	// ÎÄ¼şÂ·¾¶
+	// æ–‡ä»¶è·¯å¾„
 	string path(this->path);
 
-	// ÅĞ¶Ïpath Â·¾¶µÄÊôĞÔ-ÎÄ¼şorÎÄ¼ş¼Ğ
+	// åˆ¤æ–­path è·¯å¾„çš„å±æ€§-æ–‡ä»¶oræ–‡ä»¶å¤¹
 	struct stat status;
 	this->res_is_empty = stat(path.c_str(), &status);
 
-	// Èç¹ûÊÇÎÄ¼ş¼Ğ-ÔòÆ´½Ó  /docs/image   index.html
+	// å¦‚æœæ˜¯æ–‡ä»¶å¤¹-åˆ™æ‹¼æ¥  /docs/image   index.html
 	if ((status.st_mode & S_IFMT) == S_IFDIR) {
 		if (this->path[this->path.length() - 1] == '/') {
 			this->path += "index.html";
@@ -198,7 +198,7 @@ void Response::generatePath(string url)
 
 }
 
-// Éú³ÉÊı¾İÀàĞÍ
+// ç”Ÿæˆæ•°æ®ç±»å‹
 void Response::generateMIME()
 {
 	string mime(getContentType(this->path.c_str()));

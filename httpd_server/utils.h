@@ -11,85 +11,85 @@
 using namespace std;
 
 /*
-* ¹¤¾ßº¯Êı
+* å·¥å…·å‡½æ•°
 */
 
-// »ñÈ¡ÍøÂç´íÎóÏûÏ¢
+// è·å–ç½‘ç»œé”™è¯¯æ¶ˆæ¯
 void getNetworkError();
 
-// ¶ÁÈ¡ÇëÇóµÄÒ»ĞĞ
+// è¯»å–è¯·æ±‚çš„ä¸€è¡Œ
 int get_line(SOCKET sock, char* buff, int size);
 
 /*
-* ´Óvector<char>ÖĞ¶ÁÈ¡Ò»ĞĞ
-* @param body ÇëÇóÌå
-* @param buff ´æ·Å¶ÁÈ¡µ½µÄÄÚÈİ
-* @param index ¿ªÊ¼¶ÁÈ¡µÄÎ»ÖÃ
-* @return ×îºó¶ÁÈ¡µ½µÄÎ»ÖÃ
+* ä»vector<char>ä¸­è¯»å–ä¸€è¡Œ
+* @param body è¯·æ±‚ä½“
+* @param buff å­˜æ”¾è¯»å–åˆ°çš„å†…å®¹
+* @param index å¼€å§‹è¯»å–çš„ä½ç½®
+* @return æœ€åè¯»å–åˆ°çš„ä½ç½®
 */
 int get_line(vector<char>& body, string& buff, int index);
 
 /*
-* ´Óvector<char>ÖĞ¶ÁÈ¡Ò»ĞĞ£¬²¢±£´æÔÚÁíÍâÒ»¸övector<char>ÖĞ
-* @param body ÇëÇóÌå
-* @param buff ´æ·Å¶ÁÈ¡µ½µÄÄÚÈİ
-* @param index ¿ªÊ¼¶ÁÈ¡µÄÎ»ÖÃ
-* @return ×îºó¶ÁÈ¡µ½µÄÎ»ÖÃ
+* ä»vector<char>ä¸­è¯»å–ä¸€è¡Œï¼Œå¹¶ä¿å­˜åœ¨å¦å¤–ä¸€ä¸ªvector<char>ä¸­
+* @param body è¯·æ±‚ä½“
+* @param buff å­˜æ”¾è¯»å–åˆ°çš„å†…å®¹
+* @param index å¼€å§‹è¯»å–çš„ä½ç½®
+* @return æœ€åè¯»å–åˆ°çš„ä½ç½®
 */
 int get_PartBody_File(vector<char>& body, vector<char>& buff, int index);
 
 /**
-*  ½âÎömultipart/form-data  partÍ·
-* @param body ÇëÇóÌå
-* @param currentIndex µ±Ç°¶ÁÈ¡µ½µÄÎ»ÖÃ
-* @param buff ¶ÁÈ¡Ã¿Ò»ĞĞ
-* @param partHead ´æ·ÅpartÍ·µÄmap¶ÔÏó
-* @return ¶ÁÈ¡µ½µÄÎ»ÖÃ
+*  è§£æmultipart/form-data  partå¤´
+* @param body è¯·æ±‚ä½“
+* @param currentIndex å½“å‰è¯»å–åˆ°çš„ä½ç½®
+* @param buff è¯»å–æ¯ä¸€è¡Œ
+* @param partHead å­˜æ”¾partå¤´çš„mapå¯¹è±¡
+* @return è¯»å–åˆ°çš„ä½ç½®
 */
 int parsePartHead(vector<char>& body, int currentIndex, string& buff, unordered_map<string, string>& partHead);
 
 /**
-* ½âÎömultipart/form-data  part ¶ş½øÖÆÎÄ¼şÄÚÈİ
-* @param body Êı¾İÔ´
-* @param buff ´æ·ÅÊı¾İµÄ
-* @param index ¿ªÊ¼¶ÁÈ¡µÄÎ»ÖÃ
-* @param startFlag boundary·Ö¸î±êÖ¾
-* @param endFlag boundary·Ö¸î±êÖ¾
-* @return ¶ÁÈ¡½áÊøµÄÎ»ÖÃ
+* è§£æmultipart/form-data  part äºŒè¿›åˆ¶æ–‡ä»¶å†…å®¹
+* @param body æ•°æ®æº
+* @param buff å­˜æ”¾æ•°æ®çš„
+* @param index å¼€å§‹è¯»å–çš„ä½ç½®
+* @param startFlag boundaryåˆ†å‰²æ ‡å¿—
+* @param endFlag boundaryåˆ†å‰²æ ‡å¿—
+* @return è¯»å–ç»“æŸçš„ä½ç½®
 */
 int parsePartBody_File(vector<char>& body, vector<char>& buff, int index, string& startFlag, string& endFlag);
 
-// ¶ÁÈ¡ÇëÇóÌå-ÎÄ±¾
+// è¯»å–è¯·æ±‚ä½“-æ–‡æœ¬
 int get_body(SOCKET sock, int read_count,string& body);
 
-// ¶ÁÈ¡ÇëÇóÌå-¶ş½øÖÆ
+// è¯»å–è¯·æ±‚ä½“-äºŒè¿›åˆ¶
 int get_body(SOCKET sock, int read_count, vector<char>& body);
 
-// Ìø¹ı¿Õ¸ñ
+// è·³è¿‡ç©ºæ ¼
 void trimStart(char* str, int size, int* index);
 
-// È¥³ıstring Á½¶Ë¿Õ¸ñ
+// å»é™¤string ä¸¤ç«¯ç©ºæ ¼
 void delete_space(string& s);
 
-// È¥³ıstring Á½¶ËÒıºÅ
+// å»é™¤string ä¸¤ç«¯å¼•å·
 void delete_quotation(string& s);
 
-// ½âÎöÇëÇó²ÎÊı
+// è§£æè¯·æ±‚å‚æ•°
 void parseQuery(unordered_map<string, string> &query, char* queryStr);
 
-// »ñÈ¡MIMEÀàĞÍ
+// è·å–MIMEç±»å‹
 char* getContentType(const char* path);
 
-// ÎÄ¼ş×ª³Égzip
+// æ–‡ä»¶è½¬æˆgzip
 bool fileToGZIP(string filePath);
 
-// ×Ö·û´®gzipÑ¹Ëõ
+// å­—ç¬¦ä¸²gzipå‹ç¼©
 int stringToGZIP(string& str);
 
-// Ò³ÃæÎ´ÕÒµ½
+// é¡µé¢æœªæ‰¾åˆ°
 void not_found(SOCKET client);
 
-// ´òÓ¡map
+// æ‰“å°map
 void printMap(unordered_map<string, string> &map);
 
 #endif // !UTILS

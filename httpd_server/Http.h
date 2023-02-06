@@ -8,7 +8,7 @@
 using namespace std;
 typedef void (*HandleFUNC)(Request&, Response&);
 
-// ³õÊ¼»¯HTTP·şÎñÆ÷
+// åˆå§‹åŒ–HTTPæœåŠ¡å™¨
 class Http
 {
 public:
@@ -16,38 +16,38 @@ public:
 private:
 	Http();
 private:
-	string staticPath = "./"; // ¾²Ì¬×ÊÔ´´æ·ÅÂ·¾¶
-	unordered_map<string, HandleFUNC> allMethods; // ±£´æall´¦Àíº¯Êı
-	unordered_map<string, HandleFUNC> getMethods; // ±£´æGET´¦Àíº¯Êı
-	unordered_map<string, HandleFUNC> postMethods; // ±£´æGET´¦Àíº¯Êı
+	string staticPath = "./"; // é™æ€èµ„æºå­˜æ”¾è·¯å¾„
+	unordered_map<string, HandleFUNC> allMethods; // ä¿å­˜allå¤„ç†å‡½æ•°
+	unordered_map<string, HandleFUNC> getMethods; // ä¿å­˜GETå¤„ç†å‡½æ•°
+	unordered_map<string, HandleFUNC> postMethods; // ä¿å­˜GETå¤„ç†å‡½æ•°
 public:
-	Request req; // ÇëÇó¶ÔÏó
-	Response res; // ÏìÓ¦¶ÔÏó
+	Request req; // è¯·æ±‚å¯¹è±¡
+	Response res; // å“åº”å¯¹è±¡
 
 public:
-	// ÉèÖÃ¾²Ì¬×ÊÔ´´æ·ÅÂ·¾¶
+	// è®¾ç½®é™æ€èµ„æºå­˜æ”¾è·¯å¾„
 	void setStatic(string path);
 	string getStatic();
 
-	// ´æ·Å´¦ÀíËùÓĞÇëÇóµÄº¯ÊıÖ¸Õë
+	// å­˜æ”¾å¤„ç†æ‰€æœ‰è¯·æ±‚çš„å‡½æ•°æŒ‡é’ˆ
 	void all(string, HandleFUNC);
-	HandleFUNC all(string); // »ñÈ¡´¦ÀíËùÓĞÇëÇóµÄº¯ÊıÖ¸Õë
+	HandleFUNC all(string); // è·å–å¤„ç†æ‰€æœ‰è¯·æ±‚çš„å‡½æ•°æŒ‡é’ˆ
 
- 	// ´æ·Å´¦ÀíGETÇëÇóµÄº¯ÊıÖ¸Õë
+ 	// å­˜æ”¾å¤„ç†GETè¯·æ±‚çš„å‡½æ•°æŒ‡é’ˆ
 	void get(string, HandleFUNC); 
 	HandleFUNC get(string);
 
-	// ´æ·Å´¦ÀíPOSTÇëÇóµÄº¯ÊıÖ¸Õë
+	// å­˜æ”¾å¤„ç†POSTè¯·æ±‚çš„å‡½æ•°æŒ‡é’ˆ
 	void post(string, HandleFUNC); 
 	HandleFUNC post(string);
 
 
-	// ¼àÌı¶Ë¿Ú
+	// ç›‘å¬ç«¯å£
 	void listen(unsigned short port);
 private:
 
 public:
-	static Http* getInstance() { // »ñÈ¡ÊµÀı
+	static Http* getInstance() { // è·å–å®ä¾‹
 		static Http ins;
 		return &ins;
 	}

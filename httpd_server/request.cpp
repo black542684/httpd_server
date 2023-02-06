@@ -7,36 +7,36 @@ Request::Request() {
 	this->url = "";
 }
 
-// ´«ÈëÌ×½Ó×Ö£¬»ñÈ¡ÇëÇóĞÅÏ¢
+// ä¼ å…¥å¥—æ¥å­—ï¼Œè·å–è¯·æ±‚ä¿¡æ¯
 Request::Request(SOCKET clientSock) {
 	this->setRequest(clientSock);
 }
 
-// ´«ÈëÌ×½Ó×Ö£¬¶ÁÈ¡ÇëÇóĞÅÏ¢
+// ä¼ å…¥å¥—æ¥å­—ï¼Œè¯»å–è¯·æ±‚ä¿¡æ¯
 void Request::setRequest(SOCKET clientSock) {
-	this->client = clientSock; // ±£´æsocket- ±¸ÓÃ
+	this->client = clientSock; // ä¿å­˜socket- å¤‡ç”¨
 	char buff[1024] = { 0 }; // 1K
 	
-	// ¶ÁÈ¡Ò»ĞĞÊı¾İ
+	// è¯»å–ä¸€è¡Œæ•°æ®
 	int numchars = get_line(clientSock, buff, sizeof(buff) - 1);
 	
-	int j = 0; // buffÏÂ±ê
-	int i = 0; // methodÏÂ±ê
-	char method[255] = { 0 }; // ÇëÇó·½·¨ GET or POST
-	trimStart(buff, sizeof(buff), &j); // Ìø¹ı¿Õ¸ñ
+	int j = 0; // buffä¸‹æ ‡
+	int i = 0; // methodä¸‹æ ‡
+	char method[255] = { 0 }; // è¯·æ±‚æ–¹æ³• GET or POST
+	trimStart(buff, sizeof(buff), &j); // è·³è¿‡ç©ºæ ¼
 	
-	// »ñÈ¡ÇëÇó·½·¨
+	// è·å–è¯·æ±‚æ–¹æ³•
 	while (!isspace(buff[j]) && i < sizeof(method) - 1) {
 		method[i++] = buff[j++];
 	}
 	method[i] = '\0';
 	this->method = method;
 
-	// ½âÎö×ÊÔ´ÎÄ¼şÂ·¾¶
-	char url[255] = { 0 }; // ´æ·ÅÍêÕû×ÊÔ´Â·¾¶
+	// è§£æèµ„æºæ–‡ä»¶è·¯å¾„
+	char url[255] = { 0 }; // å­˜æ”¾å®Œæ•´èµ„æºè·¯å¾„
 
-	trimStart(buff, sizeof(buff), &j); // Ìø¹ı¿Õ¸ñ
-	i = 0; // ÖØÖÃ
+	trimStart(buff, sizeof(buff), &j); // è·³è¿‡ç©ºæ ¼
+	i = 0; // é‡ç½®
 	while (
 		j < sizeof(buff) &&
 		i < sizeof(url) - 1 &&
@@ -48,22 +48,22 @@ void Request::setRequest(SOCKET clientSock) {
 	url[i] = '\0';
 
 	char* outer_ptr = NULL;
-	// ÓÃ?·Ö¸îÇëÇó²ÎÊı   /api?name=zs&age=1
+	// ç”¨?åˆ†å‰²è¯·æ±‚å‚æ•°   /api?name=zs&age=1
 	char* tmp = strtok_s(url, "?", &outer_ptr);
-	this->url = tmp; // ÇëÇó×ÊÔ´Â·¾¶
-	this->path = tmp; // ÇëÇóÂ·¾¶
+	this->url = tmp; // è¯·æ±‚èµ„æºè·¯å¾„
+	this->path = tmp; // è¯·æ±‚è·¯å¾„
 
-	// »ñÈ¡ÇëÇó²ÎÊı
+	// è·å–è¯·æ±‚å‚æ•°
 	tmp = strtok_s(NULL, "?", &outer_ptr);
 	if (tmp) {
 		parseQuery(this->query, tmp);
 	}
 
-	// ¶ÁÈ¡Ê£ÏÂµÄÊı¾İ£¬ÉèÖÃÇëÇóÍ·
+	// è¯»å–å‰©ä¸‹çš„æ•°æ®ï¼Œè®¾ç½®è¯·æ±‚å¤´
 	this->setHead(clientSock);
 }
 
-// ÉèÖÃÇëÇóÍ·
+// è®¾ç½®è¯·æ±‚å¤´
 void Request::setHead(SOCKET clientSock)
 {
 	// Host: developer.mozilla.org
@@ -75,15 +75,15 @@ void Request::setHead(SOCKET clientSock)
 	{
 		numchars = get_line(clientSock, buff, sizeof(buff) - 1);
 
-		if (numchars > 1 && strcmp(buff, "\n")) { // Èç¹û²»ÊÇ×îºóÒ»¸ö×Ö·û '\n'
+		if (numchars > 1 && strcmp(buff, "\n")) { // å¦‚æœä¸æ˜¯æœ€åä¸€ä¸ªå­—ç¬¦ '\n'
 
-			char* tmp = strtok_s(buff, ":", &outer_ptr); // ÓÃ : ·Ö¸î   Content-tye: text/plain
+			char* tmp = strtok_s(buff, ":", &outer_ptr); // ç”¨ : åˆ†å‰²   Content-tye: text/plain
 			string key(tmp);
-			delete_space(key); // È¥³ıÁ½¶Ë¿Õ¸ñ
+			delete_space(key); // å»é™¤ä¸¤ç«¯ç©ºæ ¼
 			
 			tmp = strtok_s(NULL, ":", &outer_ptr);
 			string value(tmp);
-			delete_space(value); // È¥³ıÁ½¶Ë¿Õ¸ñ
+			delete_space(value); // å»é™¤ä¸¤ç«¯ç©ºæ ¼
 			
 			if (!key.empty() && !value.empty()) {
 				this->head.emplace(key, value);
@@ -92,7 +92,7 @@ void Request::setHead(SOCKET clientSock)
 	}	
 	
 	if (this->method == "POST") {
-		//ÕâÊÇÀïpostÇëÇó
+		//è¿™æ˜¯é‡Œpostè¯·æ±‚
 		setBody(clientSock);
 	}
 	
@@ -100,17 +100,17 @@ void Request::setHead(SOCKET clientSock)
 
 }
 
-// ÉèÖÃÇëÇóÌå
+// è®¾ç½®è¯·æ±‚ä½“
 void Request::setBody(SOCKET clientSock)
 {
-	string length = this->head["Content-Length"]; // ÇëÇóÌå³¤¶È
-	string body; // ÁÙÊ±±£´æÇëÇóÌå-ÎÄ±¾ÎÄ¼ş
+	string length = this->head["Content-Length"]; // è¯·æ±‚ä½“é•¿åº¦
+	string body; // ä¸´æ—¶ä¿å­˜è¯·æ±‚ä½“-æ–‡æœ¬æ–‡ä»¶
 	vector<char> body_binary;
 
-	int len = atoi(length.c_str()); // string-×ª-int
+	int len = atoi(length.c_str()); // string-è½¬-int
 	if (len <= 0) return;
 
-	string contentType = this->head["Content-Type"]; // ÅĞ¶Ïform-data
+	string contentType = this->head["Content-Type"]; // åˆ¤æ–­form-data
 	if (contentType.find("multipart/form-data") != -1) {
 		get_body(clientSock, len, body_binary);
 	}
@@ -118,7 +118,7 @@ void Request::setBody(SOCKET clientSock)
 		get_body(clientSock, len, body);
 	}
 
-	// ´¦Àí4ÖÖ²»Í¬µÄpostÇëÇóÌá½»·½Ê½
+	// å¤„ç†4ç§ä¸åŒçš„postè¯·æ±‚æäº¤æ–¹å¼
 	if (contentType.find("application/x-www-form-urlencoded") != -1) {
 		parseForm(body);
 	}
@@ -133,14 +133,14 @@ void Request::setBody(SOCKET clientSock)
 	}
 }
 
-// // ½âÎöform±íµ¥µÄÌá½»
+// // è§£æformè¡¨å•çš„æäº¤
 void Request::parseForm(string &body)
 {
 	char* str = (char*)body.c_str();
-	parseQuery(this->body_form, str); // ½âÎöform±íµ¥£¬²¢±£´æ
+	parseQuery(this->body_form, str); // è§£æformè¡¨å•ï¼Œå¹¶ä¿å­˜
 }
 
-// ½âÎöjson¸ñÊ½µÄÌá½»
+// è§£æjsonæ ¼å¼çš„æäº¤
 void Request::parseJSON(string& body)
 {
 	this->body_json = JSON::parse(body);
@@ -149,55 +149,55 @@ void Request::parseJSON(string& body)
 	}
 }
 
-// ½âÎöXML¸ñÊ½µÄÌá½»
+// è§£æXMLæ ¼å¼çš„æäº¤
 void Request::parseXML(string& body)
 {
 	this->body_xml.Parse(body.c_str());
 }
 
-// ½âÎöFormData¸ñÊ½µÄÌá½»
+// è§£æFormDataæ ¼å¼çš„æäº¤
 void Request::parseFormData(vector<char>& body)
 {
 	string contentType = this->head["Content-Type"];
-	// ; ·Ö¸î multipart/form-data; boundary=----WebKitFormBoundary5On24LeqJdcOBcBC
+	// ; åˆ†å‰² multipart/form-data; boundary=----WebKitFormBoundary5On24LeqJdcOBcBC
 	size_t index = contentType.find("=");
 	if (index == -1) return;
 	
 	string boundary = contentType.substr(index + 1);
-	string start = "--" + boundary; // Ã¿Ò»¸öÊı¾İ¶Î¿ªÊ¼Î»ÖÃ
-	string end = start + "--"; // Êı¾İ¶Î½áÊøÎ»ÖÃ
+	string start = "--" + boundary; // æ¯ä¸€ä¸ªæ•°æ®æ®µå¼€å§‹ä½ç½®
+	string end = start + "--"; // æ•°æ®æ®µç»“æŸä½ç½®
 
-	string buff; // ÎÄ±¾»º´æ
-	vector<char> part_buff;// ¶ş½øÖÆ»º´æ
+	string buff; // æ–‡æœ¬ç¼“å­˜
+	vector<char> part_buff;// äºŒè¿›åˆ¶ç¼“å­˜
 
-	int startindex = 0; // ¶ÁÈ¡µ½µÄÎ»ÖÃ
-	unordered_map<string, string> partHead; // ´æ·ÅpartÍ·
+	int startindex = 0; // è¯»å–åˆ°çš„ä½ç½®
+	unordered_map<string, string> partHead; // å­˜æ”¾partå¤´
 	
 
 	while (true)
 	{
 		buff.clear();
 		startindex = get_line(body, buff, startindex);
-		// ¶ÁÈ¡µ½¿ªÊ¼ÇøÓò
+		// è¯»å–åˆ°å¼€å§‹åŒºåŸŸ
 		if (buff == start) {
 			partHead.clear();
 			buff.clear();
 			startindex = parsePartHead(body, startindex, buff, partHead);
 		}
-		else if (buff == end) {// ¶ÁÈ¡µ½ÁË½áÊø±êÖ¾
+		else if (buff == end) {// è¯»å–åˆ°äº†ç»“æŸæ ‡å¿—
 			buff.clear();
 			break;
 		}
 		
-		if (buff.size() == 0) { // ¶ÁÈ¡ÄÚÈİÇøÓò { buff.size() == 0 ±íÊ¾¶Áµ½ÁË\r\n }
+		if (buff.size() == 0) { // è¯»å–å†…å®¹åŒºåŸŸ { buff.size() == 0 è¡¨ç¤ºè¯»åˆ°äº†\r\n }
 			buff.clear();
 
-			// ÅĞ¶ÏÊÇÎÄ±¾»¹ÊÇ ÎÄ¼ş
-			if (partHead.count("filename") > 0) { // Èç¹û´æÔÚfilename×Ö¶Î£¬ËµÃ÷ÊÇÒ»¸öÎÄ¼ş
-				/* µÚÒ»ÖÖ¶ÁÈ¡·½Ê½ */
+			// åˆ¤æ–­æ˜¯æ–‡æœ¬è¿˜æ˜¯ æ–‡ä»¶
+			if (partHead.count("filename") > 0) { // å¦‚æœå­˜åœ¨filenameå­—æ®µï¼Œè¯´æ˜æ˜¯ä¸€ä¸ªæ–‡ä»¶
+				/* ç¬¬ä¸€ç§è¯»å–æ–¹å¼ */
 				// startindex = parsePartBody_File(body, part_buff, startindex, start, end);
 				
-				/* µÚ¶şÖÖ¶ÁÈ¡·½Ê½ */
+				/* ç¬¬äºŒç§è¯»å–æ–¹å¼ */
 				startindex = get_PartBody_File(body, part_buff, startindex);
 				FormDataFile file;
 				if (partHead.count("Content-Disposition")) {
@@ -214,7 +214,7 @@ void Request::parseFormData(vector<char>& body)
 				}
 				file.value.swap(part_buff);
 
-				this->files.push_back(file); // ±£´æÎÄ¼ş¶ÔÏó
+				this->files.push_back(file); // ä¿å­˜æ–‡ä»¶å¯¹è±¡
 			}
 			else {
 				startindex = get_line(body, buff, startindex);
@@ -232,7 +232,7 @@ void Request::parseFormData(vector<char>& body)
 					field.contentDisposition = partHead["Content-Type"];
 				}
 				field.value.swap(buff);
-				this->fields.push_back(field); // ±£´æ²ÎÊı¶ÔÏó
+				this->fields.push_back(field); // ä¿å­˜å‚æ•°å¯¹è±¡
 			}
 		}
 	}
@@ -245,25 +245,25 @@ void Request::parseFormData(vector<char>& body)
 
 
 
-// »ñÈ¡ÇëÇóĞÅÏ¢
+// è·å–è¯·æ±‚ä¿¡æ¯
 string Request::getRequest()
 {
 	return string();
 }
 
-// »ñÈ¡ÇëÇó·½·¨
+// è·å–è¯·æ±‚æ–¹æ³•
 string Request::getMethods()
 {
 	return this->method;
 }
 
-// »ñÈ¡ÇëÇóURL
+// è·å–è¯·æ±‚URL
 string Request::getUrl()
 {
 	return this->url;
 }
 
-// ä¯ÀÀÆ÷ÊÇ·ñÖ§³Ögzip
+// æµè§ˆå™¨æ˜¯å¦æ”¯æŒgzip
 bool Request::isgzip()
 {
 	bool flag = false;
@@ -285,12 +285,12 @@ bool Request::isgzip()
 	return flag;
 }
 
-// ¶ÁÈ¡Ê£ÏÂµÄ×ÊÔ´
+// è¯»å–å‰©ä¸‹çš„èµ„æº
 void Request::release()
 {
 	char buff[1024] = { 0 };
 	int numchars = 1;
-	// ÇëÇó°üµÄÊ£ÓàÊı¾İ¶ÁÈ¡Íê±Ï
+	// è¯·æ±‚åŒ…çš„å‰©ä½™æ•°æ®è¯»å–å®Œæ¯•
 	while (numchars > 0 && strcmp(buff, "\n"))
 	{
 		printf("[%s] \n", buff);
@@ -303,7 +303,7 @@ SOCKET Request::getSocket()
 	return this->client;
 }
 
-// ÊÍ·Å×ÊÔ´
+// é‡Šæ”¾èµ„æº
 Request::~Request() {
 	this->head.clear();
 	this->query.clear();

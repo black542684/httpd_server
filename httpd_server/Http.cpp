@@ -10,7 +10,7 @@ Http::~Http()
 {
 }
 
-// ÉèÖÃ¾²Ì¬×ÊÔ´´æ·ÅÂ·¾¶
+// è®¾ç½®é™æ€èµ„æºå­˜æ”¾è·¯å¾„
 void Http::setStatic(string path)
 {
 	this->staticPath = path;

@@ -20,27 +20,27 @@ using namespace std;
 #define PRINTF(str) printf("[%s - %d] "#str" = %s \n", __func__, __LINE__, str);
 
 /**
-* ´òÓ¡´íÎóĞÅÏ¢²¢ÍË³ö³ÌĞò
-* @param str ´íÎóÌáÊ¾
+* æ‰“å°é”™è¯¯ä¿¡æ¯å¹¶é€€å‡ºç¨‹åº
+* @param str é”™è¯¯æç¤º
 */
 void error_die(const char* str);
 /**
-* ÍøÂçÍ¨ĞÅ³õÊ¼»¯
-* @param port ¶Ë¿ÚºÅ
-* @return socket Ì×½Ó×Ö
+* ç½‘ç»œé€šä¿¡åˆå§‹åŒ–
+* @param port ç«¯å£å·
+* @return socket å¥—æ¥å­—
 */
 SOCKET startup(unsigned short* port);
 
-// ´¦Àí´íÎóÇëÇó
+// å¤„ç†é”™è¯¯è¯·æ±‚
 void unimplement(SOCKET client);
 
-// ´¦ÀíÓÃ»§ÇëÇóµÄÏß³Ì
+// å¤„ç†ç”¨æˆ·è¯·æ±‚çš„çº¿ç¨‹
 unsigned WINAPI accept_request(void* arg);
 
-// ¼àÌıÌ×½Ó×Ö
+// ç›‘å¬å¥—æ¥å­—
 void listenSocket(unsigned short port);
 
-// ´¦ÀíOPTIONSÇëÇó
+// å¤„ç†OPTIONSè¯·æ±‚
 void handle_options(SOCKET, Response&);
 
 

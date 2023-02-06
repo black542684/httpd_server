@@ -1,41 +1,33 @@
 #include "Http.h"
 
-
 int main(void) {
 	Http* app = getHttp();
-	
-	// ¾²Ì¬×ÊÔ´´æ·ÅÂ·¾¶
+	// é™æ€èµ„æºå­˜æ”¾è·¯å¾„
 	app->setStatic("htdocs");
-
-	// ÉèÖÃ¿çÓòÇëÇó
+	// è®¾ç½®è·¨åŸŸè¯·æ±‚
 	app->all("*", [](Request& req, Response& res) {
 		res.header("Access-Control-Allow-Origin", "*");
 		res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
 		res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, token");
 		res.header("Access-Control-Max-Age", "86400");
 	});
-
-
-	// ´¦ÀíGETÇëÇó
+	// å¤„ç†GETè¯·æ±‚
 	app->get("/query", [](Request& req, Response& res) {
 		res.header("Content-Type", "text/plain;charset=UTF-8");
 		res.send(u8"hello world");
 	});
-
-	// ´¦ÀíPOSTÇëÇó
+	// å¤„ç†POSTè¯·æ±‚
 	app->post("/query", [](Request& req, Response& res){
 		res.header("Content-Type", "application/json");
-		JSON query = { // JSON²å¼şÖ»Ö§³Öutf8¸ñÊ½×Ö·û´®
+		JSON query = { // JSONæ’ä»¶åªæ”¯æŒutf8æ ¼å¼å­—ç¬¦ä¸²
 			{ u8"data", u8"Hello World!" },
 			{ u8"status", 200 },
-			{ u8"message", u8"²Ù×÷³É¹¦" }
+			{ u8"message", u8"æ“ä½œæˆåŠŸ" }
 		};
-		string jsonStr = query.dump(); // JSONĞòÁĞ»¯
+		string jsonStr = query.dump(); // JSONåºåˆ—åŒ–
 		res.send(jsonStr);
 	});
-
 	app->listen(8080);
-
 	return 0;
 }
 

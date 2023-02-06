@@ -10,10 +10,10 @@ GZipAssistant::~GZipAssistant()
 }
 
 /**
-* @param src Ô´×Ö·û´®
-* @param srcLen Ô´×Ö·û´®×Ö½ÚÊı
-* @param dest Ä¿±ê×Ö·û´®
-* @param destLen Ä¿±ê×Ö·û´®×Ö½ÚÊı
+* @param src æºå­—ç¬¦ä¸²
+* @param srcLen æºå­—ç¬¦ä¸²å­—èŠ‚æ•°
+* @param dest ç›®æ ‡å­—ç¬¦ä¸²
+* @param destLen ç›®æ ‡å­—ç¬¦ä¸²å­—èŠ‚æ•°
 */
 int GZipAssistant::Compress(const char* src, int srcLen, char* dest, int destLen) {
 	z_stream c_stream;
@@ -53,10 +53,10 @@ int GZipAssistant::Compress(const char* src, int srcLen, char* dest, int destLen
 }
 
 /**
-* @param src Ô´×Ö·û´®
-* @param srcLen Ô´×Ö·û´®×Ö½ÚÊı
-* @param dest Ä¿±ê×Ö·û´®
-* @param destLen Ä¿±ê×Ö·û´®×Ö½ÚÊı
+* @param src æºå­—ç¬¦ä¸²
+* @param srcLen æºå­—ç¬¦ä¸²å­—èŠ‚æ•°
+* @param dest ç›®æ ‡å­—ç¬¦ä¸²
+* @param destLen ç›®æ ‡å­—ç¬¦ä¸²å­—èŠ‚æ•°
 */
 int GZipAssistant::Decompress(const char* src, int srcLen, const char* dst, int dstLen) {
 	z_stream strm;
@@ -90,7 +90,7 @@ int GZipAssistant::Decompress(const char* src, int srcLen, const char* dst, int 
 }
 
 /**
-* µ¥ÀıÄ£Ê½
+* å•ä¾‹æ¨¡å¼
 */
 GZipAssistant* GetGZipAssistant()
 {

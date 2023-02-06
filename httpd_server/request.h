@@ -19,61 +19,61 @@ using XML = tinyxml2::XMLDocument;
 using namespace std;
 
 /*
-* ±£´æÇëÇóĞÅÏ¢
+* ä¿å­˜è¯·æ±‚ä¿¡æ¯
 */
 class Request {
 private:
-	SOCKET client;// ¿Í»§¶ËÌ×½Ó×Ö
-	unordered_map<string, string> head; // ÇëÇóÍ·ĞÅÏ¢
-	unordered_map<string, string> query; // ÇëÇó²ÎÊı
+	SOCKET client;// å®¢æˆ·ç«¯å¥—æ¥å­—
+	unordered_map<string, string> head; // è¯·æ±‚å¤´ä¿¡æ¯
+	unordered_map<string, string> query; // è¯·æ±‚å‚æ•°
 private:
-	string method; // ÇëÇó·½·¨
-	string url; // ×ÊÔ´Â·¾¶
+	string method; // è¯·æ±‚æ–¹æ³•
+	string url; // èµ„æºè·¯å¾„
 public:
-	string path; // ÇëÇóÂ·¾¶
+	string path; // è¯·æ±‚è·¯å¾„
 
 private:
-	unordered_map<string, string> body_form; // ±£´æform±íµ¥Ìá½»µÄÇëÇóÌå
-	JSON body_json; // ±£´æjsonÌá½»µÄÇëÇóÌå
-	XML body_xml; // ±£´æxmlµÄÇëÇóÌå
+	unordered_map<string, string> body_form; // ä¿å­˜formè¡¨å•æäº¤çš„è¯·æ±‚ä½“
+	JSON body_json; // ä¿å­˜jsonæäº¤çš„è¯·æ±‚ä½“
+	XML body_xml; // ä¿å­˜xmlçš„è¯·æ±‚ä½“
 	
 	/* form-data */
-	vector<FormDataField> fields; // ²ÎÊı¶ÔÏó
-	vector<FormDataFile> files; // ÎÄ¼ş¶ÔÏó 
+	vector<FormDataField> fields; // å‚æ•°å¯¹è±¡
+	vector<FormDataFile> files; // æ–‡ä»¶å¯¹è±¡ 
 
 public:
 	Request();
-	// ´«ÈëÌ×½Ó×Ö£¬»ñÈ¡ÇëÇóÍ·ĞÅÏ¢
+	// ä¼ å…¥å¥—æ¥å­—ï¼Œè·å–è¯·æ±‚å¤´ä¿¡æ¯
 	Request(SOCKET clientSock);
-	// ÉèÖÃÇëÇóĞÅÏ¢
+	// è®¾ç½®è¯·æ±‚ä¿¡æ¯
 	void setRequest(SOCKET clientSock);
-	// ÉèÖÃÇëÇóÍ·
+	// è®¾ç½®è¯·æ±‚å¤´
 	void setHead(SOCKET clientSock);
-	// ÉèÖÃÇëÇóÌå
+	// è®¾ç½®è¯·æ±‚ä½“
 	void setBody(SOCKET clientSock);
-	// ½âÎöform±íµ¥µÄÌá½»
+	// è§£æformè¡¨å•çš„æäº¤
 	void parseForm(string& body);
-	// ½âÎöjson¸ñÊ½µÄÌá½»
+	// è§£æjsonæ ¼å¼çš„æäº¤
 	void parseJSON(string& body);
-	// ½âÎöXML¸ñÊ½µÄÌá½»
+	// è§£æXMLæ ¼å¼çš„æäº¤
 	void parseXML(string& body);
-	// ½âÎöFormData¸ñÊ½µÄÌá½»
+	// è§£æFormDataæ ¼å¼çš„æäº¤
 	void parseFormData(vector<char>& body);
 
 	
-	// »ñÈ¡ÇëÇóĞÅÏ¢
+	// è·å–è¯·æ±‚ä¿¡æ¯
 	string getRequest();
 	string getMethods();
 	string getUrl();
 
-	// ä¯ÀÀÆ÷ÊÇ·ñÖ§³Ögzip
+	// æµè§ˆå™¨æ˜¯å¦æ”¯æŒgzip
 	bool isgzip(); 
-	// ¶ÁÈ¡Ê£ÏÂµÄ×ÊÔ´£¬ÊÍ·ÅÄÚ´æ-discard
+	// è¯»å–å‰©ä¸‹çš„èµ„æºï¼Œé‡Šæ”¾å†…å­˜-discard
 	void release();
 
-	// »ñÈ¡socket
+	// è·å–socket
 	SOCKET getSocket();
-	// ÊÍ·Å×ÊÔ´
+	// é‡Šæ”¾èµ„æº
 	~Request();
 };
 #endif // !REQUEST_HEAD

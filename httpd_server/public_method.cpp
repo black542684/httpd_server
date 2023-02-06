@@ -9,10 +9,10 @@ void error_die(const char* str) {
 }
 
 /*
-* ·şÎñÆ÷²»Ö§³ÖÇëÇóÀàĞÍ
+* æœåŠ¡å™¨ä¸æ”¯æŒè¯·æ±‚ç±»å‹
 */
 void unimplement(SOCKET client) {
-	// ÏòÖ¸¶¨Ì×½Ó×Ö£¬·¢ËÍÒ»¸öÌáÊ¾-»¹Ã»ÓĞÊµÏÖµÄ´íÎóÒ³Ãæ
+	// å‘æŒ‡å®šå¥—æ¥å­—ï¼Œå‘é€ä¸€ä¸ªæç¤º-è¿˜æ²¡æœ‰å®ç°çš„é”™è¯¯é¡µé¢
 	char buff[1024] = { 0 };
 
 	strcpy(buff, "HTTP/1.1 502 Bad Gateway\r\n");
@@ -27,13 +27,13 @@ void unimplement(SOCKET client) {
 	strcpy(buff, "\r\n");
 	send(client, buff, strlen(buff), 0);
 
-	// ÕÒµ½502Ò³Ãæ
+	// æ‰¾åˆ°502é¡µé¢
 	FILE* resource = fopen("htdocs/502.html", "rb");
 
 	while (true)
 	{
 		int ret = fread(buff, sizeof(char), sizeof(buff), resource);
-		// Ã»ÓĞ¶ÁÈ¡µ½
+		// æ²¡æœ‰è¯»å–åˆ°
 		if (ret <= 0) {
 			break;
 		}
@@ -42,7 +42,7 @@ void unimplement(SOCKET client) {
 }
 
 /**
-* ´¦ÀíOPTIONSÇëÇó
+* å¤„ç†OPTIONSè¯·æ±‚
 */
 void handle_options(SOCKET client, Response& res) {
 
@@ -61,61 +61,61 @@ void handle_options(SOCKET client, Response& res) {
 }
 
 /*
-* ÍøÂçÍ¨ĞÅ³õÊ¼»¯
+* ç½‘ç»œé€šä¿¡åˆå§‹åŒ–
 */
 SOCKET startup(unsigned short* port) {
-	// 1. ÍøÂçÍ¨ĞÅ³õÊ¼»¯
+	// 1. ç½‘ç»œé€šä¿¡åˆå§‹åŒ–
 	WSADATA data;
 	int result = WSAStartup(
 		MAKEWORD(1, 1),
 		&data
 	);
-	if (result) { // ·µ»Ø0±íÊ¾³É¹¦£¬²»Îª0±íÊ¾Ê§°Ü
+	if (result) { // è¿”å›0è¡¨ç¤ºæˆåŠŸï¼Œä¸ä¸º0è¡¨ç¤ºå¤±è´¥
 		error_die("WSAStartup");
 	}
 
-	// 2.´´½¨Ì×½Ó×Ö
+	// 2.åˆ›å»ºå¥—æ¥å­—
 	SOCKET server_socket = socket(
-		PF_INET, // Ì×½Ó×ÖÀàĞÍ-IPV4
-		SOCK_STREAM, // Êı¾İÁ÷-TCP
-		IPPROTO_TCP  // Ğ­Òé
+		PF_INET, // å¥—æ¥å­—ç±»å‹-IPV4
+		SOCK_STREAM, // æ•°æ®æµ-TCP
+		IPPROTO_TCP  // åè®®
 	);
 
 	if (server_socket == -1) {
-		// ´òÓ¡´íÎóÌáÊ¾²¢½áÊø³ÌĞò
-		error_die("Ì×½Ó×Ö");
+		// æ‰“å°é”™è¯¯æç¤ºå¹¶ç»“æŸç¨‹åº
+		error_die("å¥—æ¥å­—");
 	}
 
-	// 3.ÉèÖÃ¶Ë¿Ú¿É¸´ÓÃ
+	// 3.è®¾ç½®ç«¯å£å¯å¤ç”¨
 	int opt = 1;
 	result = setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
 	if (result == -1) {
 		error_die("setsockopt");
 	}
 
-	// 4.ÅäÖÃ·şÎñÆ÷¶ËµÄÍøÂçµØÖ·
+	// 4.é…ç½®æœåŠ¡å™¨ç«¯çš„ç½‘ç»œåœ°å€
 	SOCKADDR_IN server_addr;
-	memset(&server_addr, 0, sizeof(server_addr)); // ³õÊ¼»¯Îª0
-	server_addr.sin_family = PF_INET;// Ì×½Ó×ÖÀàĞÍ
-	server_addr.sin_port = htons(*port); // ¶Ë¿Ú-Ğ¡¶Ë×ª´ó¶Ë
-	server_addr.sin_addr.s_addr = htonl(INADDR_ANY); // ipµØÖ·-127.0.0.1  Ğ¡¶Ë×ª´ó¶Ë
+	memset(&server_addr, 0, sizeof(server_addr)); // åˆå§‹åŒ–ä¸º0
+	server_addr.sin_family = PF_INET;// å¥—æ¥å­—ç±»å‹
+	server_addr.sin_port = htons(*port); // ç«¯å£-å°ç«¯è½¬å¤§ç«¯
+	server_addr.sin_addr.s_addr = htonl(INADDR_ANY); // ipåœ°å€-127.0.0.1  å°ç«¯è½¬å¤§ç«¯
 
 
 
-	// °ó¶¨Ì×½Ó×Ö
+	// ç»‘å®šå¥—æ¥å­—
 	result = ::bind(server_socket, (SOCKADDR*)&server_addr, sizeof(server_addr));
 	if (result < 0) {
 		error_die("bind");
 	}
 
-	// ¶¯Ì¬·ÖÅäÒ»¸ö¶Ë¿Ú
+	// åŠ¨æ€åˆ†é…ä¸€ä¸ªç«¯å£
 	if (*port == 0) {
-		int nameLen = sizeof(server_addr);// µØÖ·»º³åÇø³¤¶È
-		// »ñÈ¡Ò»¸öÌ×½Ó¿ÚµÄ±¾µØÃû×Ö
+		int nameLen = sizeof(server_addr);// åœ°å€ç¼“å†²åŒºé•¿åº¦
+		// è·å–ä¸€ä¸ªå¥—æ¥å£çš„æœ¬åœ°åå­—
 		result = getsockname(
-			server_socket, // ±êÊ¶Ò»¸öÒÑÀ¦°óÌ×½Ó¿ÚµÄÃèÊö·ûºÅ
-			(SOCKADDR*)&server_addr, // ½ÓÊÕÌ×½Ó¿ÚµÄµØÖ·
-			&nameLen // µØÖ·»º³åÇø³¤¶È-×Ö½Ú
+			server_socket, // æ ‡è¯†ä¸€ä¸ªå·²æ†ç»‘å¥—æ¥å£çš„æè¿°ç¬¦å·
+			(SOCKADDR*)&server_addr, // æ¥æ”¶å¥—æ¥å£çš„åœ°å€
+			&nameLen // åœ°å€ç¼“å†²åŒºé•¿åº¦-å­—èŠ‚
 		);
 
 		if (result < 0) {
@@ -124,7 +124,7 @@ SOCKET startup(unsigned short* port) {
 		*port = server_addr.sin_port;
 	}
 
-	// ´´½¨¼àÌı¶ÓÁĞ
+	// åˆ›å»ºç›‘å¬é˜Ÿåˆ—
 	if (listen(server_socket, 5) < 0) {
 		error_die("listen");
 	}
@@ -133,24 +133,24 @@ SOCKET startup(unsigned short* port) {
 }
 
 /*
-* ´¦ÀíÓÃ»§ÇëÇóµÄÏß³Ì
+* å¤„ç†ç”¨æˆ·è¯·æ±‚çš„çº¿ç¨‹
 */
 unsigned WINAPI accept_request(void* arg) {
 
 	Http* app = getHttp();
 
-	SOCKET client = (SOCKET)arg; // ¿Í»§¶ËÌ×½Ó×Ö
+	SOCKET client = (SOCKET)arg; // å®¢æˆ·ç«¯å¥—æ¥å­—
 
-	// ÇëÇó
+	// è¯·æ±‚
 	Request request(client);
-	// ÏìÓ¦
+	// å“åº”
 	Response response(request, app->getStatic());
 	cout << "methods:" << request.getMethods() << "  " << "path:" << request.path << endl;
 
 
-	// ÅĞ¶ÏÊÇ·ñÊÇ GET »òÕß POST ÇëÇó
+	// åˆ¤æ–­æ˜¯å¦æ˜¯ GET æˆ–è€… POST è¯·æ±‚
 	if (request.getMethods() != "GET" && request.getMethods() != "POST" && request.getMethods() != "OPTIONS") {
-		// Ïòä¯ÀÀÆ÷·µ»ØÒ»¸ö´íÎóÒ³Ãæ
+		// å‘æµè§ˆå™¨è¿”å›ä¸€ä¸ªé”™è¯¯é¡µé¢
 		unimplement(client);
 		closesocket(client);
 		return 0;
@@ -165,7 +165,7 @@ unsigned WINAPI accept_request(void* arg) {
 		allFunc(request, response);
 	}
 
-	// Èç¹ûÊÇOPTIONSÇëÇó
+	// å¦‚æœæ˜¯OPTIONSè¯·æ±‚
 	if (request.getMethods() == "OPTIONS") {
 		handle_options(client, response);
 
@@ -175,7 +175,7 @@ unsigned WINAPI accept_request(void* arg) {
 			allFunc(request, response);
 		}
 		else {
-			// ¾²Ì¬×ÊÔ´
+			// é™æ€èµ„æº
 			response.send();
 		}
 
@@ -189,40 +189,41 @@ unsigned WINAPI accept_request(void* arg) {
 	PRINTF(request.getUrl().c_str());
 	
 
-	//¹Ø±Õsocket
+	//å…³é—­socket
 	closesocket(client);
 	return 0;
 }
 
 /**
-* ¼àÌıÌ×½Ó×Ö
+* ç›‘å¬å¥—æ¥å­—
 */
 void listenSocket(unsigned short port) {
-	DWORD	threadId; // Ïß³ÌID
-	HANDLE hThread; // Ïß³Ì¾ä±ú
-	/*³õÊ¼»¯socket*/
+	SetConsoleOutputCP(CP_UTF8); // é€šè¿‡ä»£ç è®¾ç½®æ§åˆ¶å°è¾“å‡ºç¼–ç æ ¼å¼ UTF-8
+	DWORD	threadId; // çº¿ç¨‹ID
+	HANDLE hThread; // çº¿ç¨‹å¥æŸ„
+	/*åˆå§‹åŒ–socket*/
 	SOCKET serv_socket = startup(&port);
 
-	printf("http·şÎñÆ÷³õÊ¼»¯£¬ÕıÔÚ¼àÌı%d¶Ë¿Ú... \n", port);
+	printf(u8"httpæœåŠ¡å™¨åˆå§‹åŒ–ï¼Œæ­£åœ¨ç›‘å¬%dç«¯å£... \n", port);
 
-	struct sockaddr_in client_addr; // ¿Í»§¶ËĞÅÏ¢
+	struct sockaddr_in client_addr; // å®¢æˆ·ç«¯ä¿¡æ¯
 	int client_addr_len = sizeof(client_addr);
 
-	// Ñ­»·µÈ´ıÌ×½Ó×Ö
+	// å¾ªç¯ç­‰å¾…å¥—æ¥å­—
 	while (true)
 	{
-		// ×èÈûÊ½µÈ´ıÓÃ»§Í¨¹ıä¯ÀÀÆ÷·¢ËÍÇëÇó
+		// é˜»å¡å¼ç­‰å¾…ç”¨æˆ·é€šè¿‡æµè§ˆå™¨å‘é€è¯·æ±‚
 		SOCKET client_socket = accept(serv_socket, (struct sockaddr*)&client_addr, &client_addr_len);
 		if (client_socket == -1) {
 			error_die("accept");
 		}
 
-		// ´´½¨Ò»¸öĞÂ½ø³Ì´¦Àí¿Í»§¶ËÇëÇó
+		// åˆ›å»ºä¸€ä¸ªæ–°è¿›ç¨‹å¤„ç†å®¢æˆ·ç«¯è¯·æ±‚
 		hThread = (HANDLE)_beginthreadex(NULL, 0, accept_request, (void*)client_socket, 0, (unsigned*)&threadId);
 
 	}
 
-	// ÍË³ö·şÎñ¶ËÌ×½Ó×Ö
+	// é€€å‡ºæœåŠ¡ç«¯å¥—æ¥å­—
 	closesocket(serv_socket);
 }
 

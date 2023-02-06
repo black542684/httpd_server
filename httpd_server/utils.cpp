@@ -2,27 +2,27 @@
 #include "GZipAssistant.h"
 #include <iostream>
 
-/*MIMEÀàĞÍ*/
+/*MIMEç±»å‹*/
 unordered_map<string, string> MIME = {
-	// ÎÄ±¾
+	// æ–‡æœ¬
 	{ "text", "text/plain" },
 	{ "html", "text/html" },
 	{ "css", "text/css" },
 	{ "js", "text/javascript" },
 	{ "json", "application/json" },
-	// Í¼Ïñ
+	// å›¾åƒ
 	{ "gif", "image/gif" },
 	{ "png", "image/png" },
 	{ "jpg", "image/jpeg" },
 	{ "bmp", "image/bmp" },
 	{ "webp", "image/webp" },
 	{ "ico", "image/x-icon" },
-	// ÒôÆµ
+	// éŸ³é¢‘
 	{ "midi", "audio/midi" },
 	{ "mp3", "audio/mpeg" },
 	{ "ogg", "audio/ogg" },
 	{ "wav", "audio/x-wav" },
-	// ÊÓÆµ
+	// è§†é¢‘
 	{ "mov", "video/quicktime" },
 	{ "avi", "video/x-msvideo" },
 	{ "movie", "video/x-sgi-movie" },
@@ -32,52 +32,52 @@ unordered_map<string, string> MIME = {
 	{ "html", "text/html" },
 };
 
-// »ñÈ¡ÍøÂç´íÎóÏûÏ¢
+// è·å–ç½‘ç»œé”™è¯¯æ¶ˆæ¯
 void getNetworkError() {
-	// ¶ÁÈ¡Ê§°ÜµÄÇé¿ö
+	// è¯»å–å¤±è´¥çš„æƒ…å†µ
 	int id = WSAGetLastError();
 	switch (id)
 	{
-	case WSANOTINITIALISED: printf("ÉĞÎ´Ö´ĞĞ³É¹¦µÄ WSAStartup\n"); break;
-	case WSASYSNOTREADY: printf("ÍøÂç×ÓÏµÍ³²»¿ÉÓÃ¡£\n"); break;
-	case WSAHOST_NOT_FOUND: printf("ÕÒ²»µ½Ö÷»ú¡£\n"); break;
-	case WSATRY_AGAIN: printf("ÕÒ²»µ½·ÇÊÚÈ¨Ö÷»ú¡£\n"); break;
-	case WSANO_RECOVERY: printf("ÕâÊÇ²»¿É»Ö¸´µÄ´íÎó¡£\n"); break;
-	case WSAEINPROGRESS: printf("²Ù×÷ÕıÔÚ½øĞĞÖĞ¡£\n"); break;
-	case WSANO_DATA: printf("ÓĞĞ§Ãû³Æ£¬Ã»ÓĞÇëÇóÀàĞÍµÄÊı¾İ¼ÇÂ¼¡£\n"); break;
-	case WSAEINTR: printf("ÖĞ¶ÏµÄº¯Êıµ÷ÓÃ¡£\n"); break;
-	case WSAEPROCLIM: printf("½ø³Ì¹ı¶à¡£\n");
-	case WSAEFAULT: printf("µØÖ·´íÎó¡£\n");
-	case WSAENOTSOCK: printf("ÎŞĞ§Ì×½Ó×ÖÉÏµÄÌ×½Ó×Ö²Ù×÷¡£Ìá¹©µÄÌ×½Ó×Ö¾ä±úÎŞĞ§¡£\n");
-	default: printf("Î´Öª´íÎó id = %d\n", id); break;
+	case WSANOTINITIALISED: printf("å°šæœªæ‰§è¡ŒæˆåŠŸçš„ WSAStartup\n"); break;
+	case WSASYSNOTREADY: printf("ç½‘ç»œå­ç³»ç»Ÿä¸å¯ç”¨ã€‚\n"); break;
+	case WSAHOST_NOT_FOUND: printf("æ‰¾ä¸åˆ°ä¸»æœºã€‚\n"); break;
+	case WSATRY_AGAIN: printf("æ‰¾ä¸åˆ°éæˆæƒä¸»æœºã€‚\n"); break;
+	case WSANO_RECOVERY: printf("è¿™æ˜¯ä¸å¯æ¢å¤çš„é”™è¯¯ã€‚\n"); break;
+	case WSAEINPROGRESS: printf("æ“ä½œæ­£åœ¨è¿›è¡Œä¸­ã€‚\n"); break;
+	case WSANO_DATA: printf("æœ‰æ•ˆåç§°ï¼Œæ²¡æœ‰è¯·æ±‚ç±»å‹çš„æ•°æ®è®°å½•ã€‚\n"); break;
+	case WSAEINTR: printf("ä¸­æ–­çš„å‡½æ•°è°ƒç”¨ã€‚\n"); break;
+	case WSAEPROCLIM: printf("è¿›ç¨‹è¿‡å¤šã€‚\n");
+	case WSAEFAULT: printf("åœ°å€é”™è¯¯ã€‚\n");
+	case WSAENOTSOCK: printf("æ— æ•ˆå¥—æ¥å­—ä¸Šçš„å¥—æ¥å­—æ“ä½œã€‚æä¾›çš„å¥—æ¥å­—å¥æŸ„æ— æ•ˆã€‚\n");
+	default: printf("æœªçŸ¥é”™è¯¯ id = %d\n", id); break;
 	};
 }
 
 /*
-* ¶ÁÈ¡ÇëÇóµÄÒ»ĞĞ
+* è¯»å–è¯·æ±‚çš„ä¸€è¡Œ
 */
 int get_line(SOCKET sock, char* buff, int size) {
 	if (buff == nullptr) {
 		return 0;
 	}
 
-	char c = '\0'; // ±£´æ¶ÁÈ¡µ½µÄÒ»¸ö×Ö·û
-	int i = 0; // ÏÂ±ê-  buff[i]
+	char c = '\0'; // ä¿å­˜è¯»å–åˆ°çš„ä¸€ä¸ªå­—ç¬¦
+	int i = 0; // ä¸‹æ ‡-  buff[i]
 
 
 	while (i < size - 1 && c != '\n')
 	{
-		// ´Ó»º³åÇøÖĞ¶ÁÈ¡Ò»¸ö×Ö·û
+		// ä»ç¼“å†²åŒºä¸­è¯»å–ä¸€ä¸ªå­—ç¬¦
 		int n = recv(sock, &c, 1, 0);
 
-		// recvº¯Êı·µ»ØÆäÊµ¼ÊcopyµÄ×Ö½ÚÊı£¬´óÓÚ0±íÊ¾¶ÁÈ¡µ½ÁË×Ö·û
+		// recvå‡½æ•°è¿”å›å…¶å®é™…copyçš„å­—èŠ‚æ•°ï¼Œå¤§äº0è¡¨ç¤ºè¯»å–åˆ°äº†å­—ç¬¦
 		if (n > 0) {
-			// ÓÉÓÚ»»ĞĞ·ûÊÇ\r\n ÕâÖÖ¸ñÊ½£¬ĞèÒªÅĞ¶Ï
+			// ç”±äºæ¢è¡Œç¬¦æ˜¯\r\n è¿™ç§æ ¼å¼ï¼Œéœ€è¦åˆ¤æ–­
 			if (c == '\r') {
-				// Ô¤ÏÈ¶ÁÈ¡£¬²é¿´ÏÂÒ»¸ö×Ö·ûÊÇ²»ÊÇ\n  µ«²»»áÊ¹Ì×½Ó×Ó½ÓÊÕ¶ÓÁĞÖĞµÄÊı¾İ¼õÉÙ
+				// é¢„å…ˆè¯»å–ï¼ŒæŸ¥çœ‹ä¸‹ä¸€ä¸ªå­—ç¬¦æ˜¯ä¸æ˜¯\n  ä½†ä¸ä¼šä½¿å¥—æ¥å­æ¥æ”¶é˜Ÿåˆ—ä¸­çš„æ•°æ®å‡å°‘
 				n = recv(sock, &c, 1, MSG_PEEK);
 				if (n > 0 && c == '\n') {
-					n = recv(sock, &c, 1, 0); // Õı³£¶ÁÈ¡£¬ÏÂÒ»¸ö \n
+					n = recv(sock, &c, 1, 0); // æ­£å¸¸è¯»å–ï¼Œä¸‹ä¸€ä¸ª \n
 				}
 				else {
 					c = '\n';
@@ -94,21 +94,21 @@ int get_line(SOCKET sock, char* buff, int size) {
 		}
 	}
 
-	buff[i] = '\0'; // ½áÊø·û
+	buff[i] = '\0'; // ç»“æŸç¬¦
 	return i;
 }
 
 /*
-* ´ÓvectorÖĞ¶ÁÈ¡Ò»ĞĞ
-* @param body ÇëÇóÌå
-* @param buff ´æ·Å¶ÁÈ¡µ½µÄÄÚÈİ
-* @param index ¿ªÊ¼¶ÁÈ¡µÄÎ»ÖÃ
-* @return ×îºó¶ÁÈ¡µ½µÄÎ»ÖÃ
+* ä»vectorä¸­è¯»å–ä¸€è¡Œ
+* @param body è¯·æ±‚ä½“
+* @param buff å­˜æ”¾è¯»å–åˆ°çš„å†…å®¹
+* @param index å¼€å§‹è¯»å–çš„ä½ç½®
+* @return æœ€åè¯»å–åˆ°çš„ä½ç½®
 */
 int get_line(vector<char>& body, string& buff, int index) {
-	size_t len = body.size(); // Êı×é³¤¶È
-	char c = '\0'; // ±£´æ¶ÁÈ¡µ½µÄÒ»¸ö×Ö·û
-	int i = index; // ÏÂ±ê-  buff[i]
+	size_t len = body.size(); // æ•°ç»„é•¿åº¦
+	char c = '\0'; // ä¿å­˜è¯»å–åˆ°çš„ä¸€ä¸ªå­—ç¬¦
+	int i = index; // ä¸‹æ ‡-  buff[i]
 
 	while (i < len && c != '\n') {
 		c = body[i++];
@@ -125,16 +125,16 @@ int get_line(vector<char>& body, string& buff, int index) {
 }
 
 /*
-* ´Óvector<char>ÖĞ¶ÁÈ¡Ò»ĞĞ£¬²¢±£´æÔÚÁíÍâÒ»¸övector<char>ÖĞ
-* @param body ÇëÇóÌå
-* @param buff ´æ·Å¶ÁÈ¡µ½µÄÄÚÈİ
-* @param index ¿ªÊ¼¶ÁÈ¡µÄÎ»ÖÃ
-* @return ×îºó¶ÁÈ¡µ½µÄÎ»ÖÃ
+* ä»vector<char>ä¸­è¯»å–ä¸€è¡Œï¼Œå¹¶ä¿å­˜åœ¨å¦å¤–ä¸€ä¸ªvector<char>ä¸­
+* @param body è¯·æ±‚ä½“
+* @param buff å­˜æ”¾è¯»å–åˆ°çš„å†…å®¹
+* @param index å¼€å§‹è¯»å–çš„ä½ç½®
+* @return æœ€åè¯»å–åˆ°çš„ä½ç½®
 */
 int get_PartBody_File(vector<char>& body, vector<char>& buff, int index) {
-	size_t len = body.size(); // Êı×é³¤¶È
-	char c = '\0'; // ±£´æ¶ÁÈ¡µ½µÄÒ»¸ö×Ö·û
-	int i = index; // ÏÂ±ê-  buff[i]
+	size_t len = body.size(); // æ•°ç»„é•¿åº¦
+	char c = '\0'; // ä¿å­˜è¯»å–åˆ°çš„ä¸€ä¸ªå­—ç¬¦
+	int i = index; // ä¸‹æ ‡-  buff[i]
 
 	while (i < len) {
 		c = body[i++];
@@ -149,29 +149,29 @@ int get_PartBody_File(vector<char>& body, vector<char>& buff, int index) {
 }
 
 /**
-*  ½âÎömultipart/form-data  partÍ·
-* @param body ÇëÇóÌå
-* @param index µ±Ç°¶ÁÈ¡µ½µÄÎ»ÖÃ
-* @param buff ¶ÁÈ¡Ã¿Ò»ĞĞ
-* @param partHead ´æ·ÅpartÍ·µÄmap¶ÔÏó
-* @return ¶ÁÈ¡µ½µÄÎ»ÖÃ
+*  è§£æmultipart/form-data  partå¤´
+* @param body è¯·æ±‚ä½“
+* @param index å½“å‰è¯»å–åˆ°çš„ä½ç½®
+* @param buff è¯»å–æ¯ä¸€è¡Œ
+* @param partHead å­˜æ”¾partå¤´çš„mapå¯¹è±¡
+* @return è¯»å–åˆ°çš„ä½ç½®
 */
 int parsePartHead(vector<char>& body, int index, string& buff, unordered_map<string, string>& partHead) {
 	int currentIndex = index;
 	while (true)
 	{
-		// ¶ÁÈ¡PartÍ·²¿
+		// è¯»å–Partå¤´éƒ¨
 		buff.clear();
 		currentIndex = get_line(body, buff, currentIndex);
 		if (buff.size() == 0) break;
 		/*
 		* Content-Disposition: form-data; name="file"; filename="92cebf.jpg"
 		*/
-		// ÕâÀï¶ÁÈ¡µÄÊÇÎÄ¼şÀàĞÍ
+		// è¿™é‡Œè¯»å–çš„æ˜¯æ–‡ä»¶ç±»å‹
 		char* outer_ptr = NULL;
 		char* outer_ptr_query = NULL;
 
-		char* queryStr = (char*)buff.c_str(); // ĞèÒª±»·Ö¸îµÄ×Ö·ûÊı×é
+		char* queryStr = (char*)buff.c_str(); // éœ€è¦è¢«åˆ†å‰²çš„å­—ç¬¦æ•°ç»„
 		char* chunk = strtok_s(queryStr, ";", &outer_ptr);
 
 		while (chunk)
@@ -181,17 +181,17 @@ int parsePartHead(vector<char>& body, int index, string& buff, unordered_map<str
 			string key;
 			string value;
 
-			if (cun.find("=") != -1) { // name="file"  ÒÔµÈºÅ·Ö¸î
+			if (cun.find("=") != -1) { // name="file"  ä»¥ç­‰å·åˆ†å‰²
 				tmp = strtok_s(chunk, "=", &outer_ptr_query);
 				key = tmp;
 				delete_space(key);
 
 				tmp = strtok_s(NULL, "=", &outer_ptr_query);
 				value = tmp;
-				delete_space(value); // È¥³ı×Ö·û´®Á½¶Ë¿Õ¸ñ
-				delete_quotation(value); // È¥³ı×Ö·û´®Á½¶ËÒıºÅ
+				delete_space(value); // å»é™¤å­—ç¬¦ä¸²ä¸¤ç«¯ç©ºæ ¼
+				delete_quotation(value); // å»é™¤å­—ç¬¦ä¸²ä¸¤ç«¯å¼•å·
 			}
-			else { // Content-Disposition: form-data  ÒÔÃ°ºÅ·Ö¸î
+			else { // Content-Disposition: form-data  ä»¥å†’å·åˆ†å‰²
 				tmp = strtok_s(chunk, ":", &outer_ptr_query);
 				key = tmp;
 				delete_space(key);
@@ -202,9 +202,9 @@ int parsePartHead(vector<char>& body, int index, string& buff, unordered_map<str
 			}
 
 
-			chunk = strtok_s(NULL, ";", &outer_ptr); // ÒÔ£»·Ö¸î
+			chunk = strtok_s(NULL, ";", &outer_ptr); // ä»¥ï¼›åˆ†å‰²
 
-			partHead.emplace(key, value); // ±£´æpartÍ·
+			partHead.emplace(key, value); // ä¿å­˜partå¤´
 		}
 	}
 
@@ -212,13 +212,13 @@ int parsePartHead(vector<char>& body, int index, string& buff, unordered_map<str
 }
 
 /**
-* ½âÎömultipart/form-data  part ¶ş½øÖÆÎÄ¼şÄÚÈİ
-* @param body Êı¾İÔ´
-* @param buff ´æ·ÅÊı¾İµÄ
-* @param index ¿ªÊ¼¶ÁÈ¡µÄÎ»ÖÃ
-* @param startFlag boundary·Ö¸î±êÖ¾
-* @param endFlag boundary·Ö¸î±êÖ¾
-* @return ¶ÁÈ¡½áÊøµÄÎ»ÖÃ
+* è§£æmultipart/form-data  part äºŒè¿›åˆ¶æ–‡ä»¶å†…å®¹
+* @param body æ•°æ®æº
+* @param buff å­˜æ”¾æ•°æ®çš„
+* @param index å¼€å§‹è¯»å–çš„ä½ç½®
+* @param startFlag boundaryåˆ†å‰²æ ‡å¿—
+* @param endFlag boundaryåˆ†å‰²æ ‡å¿—
+* @return è¯»å–ç»“æŸçš„ä½ç½®
 */
 int parsePartBody_File(vector<char>& body, vector<char>& buff, int index, string& startFlag, string& endFlag) {
 	int startLen = startFlag.length();
@@ -226,58 +226,58 @@ int parsePartBody_File(vector<char>& body, vector<char>& buff, int index, string
 	int len = body.size();
 	int currentIndex = index;
 
-	bool over = false; // ÊÇ·ñ¶ÁÈ¡µ½·Ö¸î±êÖ¾Î»
+	bool over = false; // æ˜¯å¦è¯»å–åˆ°åˆ†å‰²æ ‡å¿—ä½
 
 	while (currentIndex < len)
 	{
 
-		// ÅĞ¶ÏÊÇ·ñ¶ÁÈ¡½áÊø
+		// åˆ¤æ–­æ˜¯å¦è¯»å–ç»“æŸ
 		if (currentIndex + startLen <= len) {
-			// ½ØÈ¡vector
+			// æˆªå–vector
 			auto first = body.begin() + currentIndex;
 			auto last = body.begin() + currentIndex + startLen;
-			string flag(first, last); // ½ØÈ¡µ½µÄÄÚÈİ
+			string flag(first, last); // æˆªå–åˆ°çš„å†…å®¹
 			if (flag == startFlag) {
 				over = true;
 			}
 		}
 
 		if (currentIndex + endLen <= len) {
-			// ½ØÈ¡vector
+			// æˆªå–vector
 			auto first = body.begin() + currentIndex;
 			auto last = body.begin() + currentIndex + endLen;
-			string flag(first, last); // ½ØÈ¡µ½µÄÄÚÈİ
+			string flag(first, last); // æˆªå–åˆ°çš„å†…å®¹
 			if (flag == startFlag) {
 				over = true;
 			}
 		}
 
-		if (over) { // ¶ÁÈ¡½áÊø
+		if (over) { // è¯»å–ç»“æŸ
 			break;
 		}
-		buff.push_back(body[currentIndex++]); // ±£´æÎÄ¼ş
+		buff.push_back(body[currentIndex++]); // ä¿å­˜æ–‡ä»¶
 	}
 
-	buff.pop_back(); // È¥³ı\n
-	buff.pop_back(); // È¥³ı\r
+	buff.pop_back(); // å»é™¤\n
+	buff.pop_back(); // å»é™¤\r
 	return currentIndex;
 }
 
 /**
-* ¶ÁÈ¡ÇëÇóÌå-ÎÄ±¾
+* è¯»å–è¯·æ±‚ä½“-æ–‡æœ¬
 */
 int get_body(SOCKET sock, int read_count,string& body) {
-	char c = '\0'; // ±£´æ¶ÁÈ¡µ½µÄÒ»¸ö×Ö·û
-	int i = 0; // ÏÂ±ê-  buff[i]
+	char c = '\0'; // ä¿å­˜è¯»å–åˆ°çš„ä¸€ä¸ªå­—ç¬¦
+	int i = 0; // ä¸‹æ ‡-  buff[i]
 	int buffLen = read_count + 1;
 	
 	char* buff = new char[buffLen];
 
 	while (i < read_count)
 	{
-		// ´Ó»º³åÇøÖĞ¶ÁÈ¡Ò»¸ö×Ö·û
+		// ä»ç¼“å†²åŒºä¸­è¯»å–ä¸€ä¸ªå­—ç¬¦
 		int n = recv(sock, &c, 1, 0);
-		// recvº¯Êı·µ»ØÆäÊµ¼ÊcopyµÄ×Ö½ÚÊı£¬´óÓÚ0±íÊ¾¶ÁÈ¡µ½ÁË×Ö·û
+		// recvå‡½æ•°è¿”å›å…¶å®é™…copyçš„å­—èŠ‚æ•°ï¼Œå¤§äº0è¡¨ç¤ºè¯»å–åˆ°äº†å­—ç¬¦
 		if (n > 0) {
 			buff[i++] = c;
 		}
@@ -287,27 +287,27 @@ int get_body(SOCKET sock, int read_count,string& body) {
 		}
 	}
 
-	buff[i] = '\0'; // ½áÊø·û
+	buff[i] = '\0'; // ç»“æŸç¬¦
 	body.append(buff);
 
 	return i;
 }
 
 /**
-* ¶ÁÈ¡ÇëÇóÌå-¶ş½øÖÆ
+* è¯»å–è¯·æ±‚ä½“-äºŒè¿›åˆ¶
 */
 int get_body(SOCKET sock, int read_count, vector<char>& body) {
-	char c = '\0'; // ±£´æ¶ÁÈ¡µ½µÄÒ»¸ö×Ö·û
-	int i = 0; // ÏÂ±ê-  buff[i]
+	char c = '\0'; // ä¿å­˜è¯»å–åˆ°çš„ä¸€ä¸ªå­—ç¬¦
+	int i = 0; // ä¸‹æ ‡-  buff[i]
 	// int buffLen = read_count + 1;
 
 	// char* buff = new char[buffLen];
 
 	while (i < read_count)
 	{
-		// ´Ó»º³åÇøÖĞ¶ÁÈ¡Ò»¸ö×Ö·û
+		// ä»ç¼“å†²åŒºä¸­è¯»å–ä¸€ä¸ªå­—ç¬¦
 		int n = recv(sock, &c, 1, 0);
-		// recvº¯Êı·µ»ØÆäÊµ¼ÊcopyµÄ×Ö½ÚÊı£¬´óÓÚ0±íÊ¾¶ÁÈ¡µ½ÁË×Ö·û
+		// recvå‡½æ•°è¿”å›å…¶å®é™…copyçš„å­—èŠ‚æ•°ï¼Œå¤§äº0è¡¨ç¤ºè¯»å–åˆ°äº†å­—ç¬¦
 		if (n > 0) {
 			// buff[i++] = c;
 			i++;
@@ -319,14 +319,14 @@ int get_body(SOCKET sock, int read_count, vector<char>& body) {
 		}
 	}
 
-	// buff[i] = '\0'; // ½áÊø·û
+	// buff[i] = '\0'; // ç»“æŸç¬¦
 	
 	// body.append(buff);
 
 	return i;
 }
 
-// Ìø¹ı¿Õ¸ñ
+// è·³è¿‡ç©ºæ ¼
 void trimStart(char* str, int size, int* index) {
 	while (*index < size)
 	{
@@ -339,7 +339,7 @@ void trimStart(char* str, int size, int* index) {
 	}
 }
 
-//È¥×Ö·û´®Á½±ßµÄ¿Õ¸ñ
+//å»å­—ç¬¦ä¸²ä¸¤è¾¹çš„ç©ºæ ¼
 void delete_space(string& s)
 {
 	if (s.empty())
@@ -350,7 +350,7 @@ void delete_space(string& s)
 	s.erase(s.find_last_not_of(" ") + 1);
 }
 
-// È¥³ıstring Á½¶ËÒıºÅ
+// å»é™¤string ä¸¤ç«¯å¼•å·
 void delete_quotation(string& s) {
 	if (s.empty())
 	{
@@ -360,7 +360,7 @@ void delete_quotation(string& s) {
 	s.erase(s.find_last_not_of("\"") + 1);
 }
 
-// ½âÎöÇëÇó²ÎÊı
+// è§£æè¯·æ±‚å‚æ•°
 void parseQuery(unordered_map<string, string>& query, char* queryStr) {
 	char* outer_ptr = NULL;
 	char* outer_ptr_query = NULL;
@@ -371,16 +371,16 @@ void parseQuery(unordered_map<string, string>& query, char* queryStr) {
 		char* key = strtok_s(chunk, "=", &outer_ptr_query);
 		char* value = strtok_s(NULL, "=", &outer_ptr_query);
 
-		// ±£´æÇëÇó²ÎÊı
+		// ä¿å­˜è¯·æ±‚å‚æ•°
 		query[key] = value;
 		chunk = strtok_s(NULL, "&", &outer_ptr);
 	}
 }
 
-// »ñÈ¡MIMEÀàĞÍ
+// è·å–MIMEç±»å‹
 char* getContentType(const char* path) {
 	
-	// ·µ»ØÖ¸¶¨µÄÎÄ¼şÀàĞÍ
+	// è¿”å›æŒ‡å®šçš„æ–‡ä»¶ç±»å‹
 	static char type[32] = { 0 };
 	int len = strlen(path);
 	int i = len;
@@ -391,7 +391,7 @@ char* getContentType(const char* path) {
 	}
 	i++;
 
-	int j = 0; // ±£´æÀàĞÍµÄÏÂ±ê
+	int j = 0; // ä¿å­˜ç±»å‹çš„ä¸‹æ ‡
 	for (i, j; i < len && j < sizeof(type) && path[i] != '\0'; i++, j++) {
 		type[j] = path[i];
 	}
@@ -403,28 +403,28 @@ char* getContentType(const char* path) {
 		value = MIME.at(type);
 	}
 	catch (const out_of_range& e) {
-		printf("MIME »ñÈ¡Ê§°Ü: %s \n", e.what());
+		printf("MIME è·å–å¤±è´¥: %s \n", e.what());
 		value = "text/plain";
 	}
 
 	strcpy(type, value.c_str());
 
-	//printf("ÎÄ¼şÀàĞÍÊÇ: %s \n", type);
+	//printf("æ–‡ä»¶ç±»å‹æ˜¯: %s \n", type);
 
 	return type;
 }
 
-// ÎÄ¼ş×ª³Égzip
+// æ–‡ä»¶è½¬æˆgzip
 bool fileToGZIP(string filePath)
 {
 	FILE* fp = fopen(filePath.c_str(), "rb");
-	size_t count; // ¶ÁÈ¡µ½µÄÎÄ¼şÊıÁ¿
+	size_t count; // è¯»å–åˆ°çš„æ–‡ä»¶æ•°é‡
 
 	if (fp == NULL) return false;
 	char buf[1024] = { 0 };
 	string fileStr;
 	
-	printf("¿ªÊ¼¶ÁÈ¡\n");
+	printf("å¼€å§‹è¯»å–\n");
 	while (true)
 	{
 		count = fread(buf, sizeof(char), sizeof(buf) - 1, fp);
@@ -435,10 +435,10 @@ bool fileToGZIP(string filePath)
 
 		fileStr.insert(fileStr.length(), buf, count);
 	}
-	printf("Ò»¹²¶ÁÈ¡µ½£º%lld×Ö½Ú\n", fileStr.length());
+	printf("ä¸€å…±è¯»å–åˆ°ï¼š%lldå­—èŠ‚\n", fileStr.length());
 	fclose(fp);
 	
-	//Ñ¹Ëõ£º
+	//å‹ç¼©ï¼š
 	int nLencompressed = stringToGZIP(fileStr);
 
 	const char* pCompressed = fileStr.c_str();
@@ -449,34 +449,34 @@ bool fileToGZIP(string filePath)
 		return false;
 	}
 
-	// ±£´æÖ®ºóµÄÎÄ¼şÃû
+	// ä¿å­˜ä¹‹åçš„æ–‡ä»¶å
 	string save_file = filePath + ".gz";
-	// ±£´æÑ¹ËõºóµÄÎÄ¼ş
+	// ä¿å­˜å‹ç¼©åçš„æ–‡ä»¶
 	fp = fopen(save_file.c_str(), "wb");
 	if (fp == NULL) return false;
 	count = fwrite(pCompressed, sizeof(char), nLencompressed, fp);
 
-	printf("Ò»¹²Ğ´Èë: %lld \n" ,count);
+	printf("ä¸€å…±å†™å…¥: %lld \n" ,count);
 	fclose(fp);
 	delete[] pCompressed;
 	return true;
 }
 
-// ×Ö·û´®gzipÑ¹Ëõ
+// å­—ç¬¦ä¸²gzipå‹ç¼©
 int stringToGZIP(string& str)
 {
 	GZipAssistant* gzip = GetGZipAssistant();
-	// Ñ¹ËõÇ°
+	// å‹ç¼©å‰
 	const char* pSrc = str.c_str();
 	int nLenSrc = strlen(pSrc);
-	cout << "Ñ¹ËõÇ°: " << nLenSrc << endl;
-	// ±£´æÑ¹ËõºóµÄÊı¾İ
+	cout << "å‹ç¼©å‰: " << nLenSrc << endl;
+	// ä¿å­˜å‹ç¼©åçš„æ•°æ®
 	int nLenCompress = nLenSrc * 2;
 	char* pCompressed = new char[nLenCompress];
 	memset(pCompressed, 0, nLenCompress);
 
 	int nLencompressed = gzip->Compress(pSrc, nLenSrc, pCompressed, nLenCompress);
-	cout << "Ñ¹Ëõºó: " << nLencompressed << endl;
+	cout << "å‹ç¼©å: " << nLencompressed << endl;
 
 	string gzipStr;
 	for (int i = 0; i < nLencompressed; i++) {
@@ -493,10 +493,10 @@ int stringToGZIP(string& str)
 
 
 
-// Ò³ÃæÎ´ÕÒµ½
+// é¡µé¢æœªæ‰¾åˆ°
 void not_found(SOCKET client) {
-	// ÏòÖ¸¶¨Ì×½Ó×Ö£¬·¢ËÍÒ»¸öÌáÊ¾-Î´ÕÒµ½Ò³Ãæ
-	// ÏòÖ¸¶¨Ì×½Ó×Ö£¬·¢ËÍÒ»¸öÏìÓ¦Í·
+	// å‘æŒ‡å®šå¥—æ¥å­—ï¼Œå‘é€ä¸€ä¸ªæç¤º-æœªæ‰¾åˆ°é¡µé¢
+	// å‘æŒ‡å®šå¥—æ¥å­—ï¼Œå‘é€ä¸€ä¸ªå“åº”å¤´
 	char buff[1024] = { 0 };
 
 	strcpy(buff, "HTTP/1.1 404 Not Found\r\n");
@@ -511,13 +511,13 @@ void not_found(SOCKET client) {
 	strcpy(buff, "\r\n");
 	send(client, buff, strlen(buff), 0);
 
-	// ÕÒµ½404Ò³Ãæ
+	// æ‰¾åˆ°404é¡µé¢
 	FILE* resource = fopen("htdocs/404.html", "rb");
 
 	while (true)
 	{
 		int ret = fread(buff, sizeof(char), sizeof(buff), resource);
-		// Ã»ÓĞ¶ÁÈ¡µ½
+		// æ²¡æœ‰è¯»å–åˆ°
 		if (ret <= 0) {
 			break;
 		}
@@ -526,7 +526,7 @@ void not_found(SOCKET client) {
 
 }
 
-// ´òÓ¡map
+// æ‰“å°map
 void printMap(unordered_map<string, string>& map) {
 	for (auto it = map.begin(); it != map.end(); it++) {
 		cout << it->first << ":" << it->second << endl;
