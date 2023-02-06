@@ -31,6 +31,9 @@
     <Filter Include="工具函数\头文件">
       <UniqueIdentifier>{073651d1-07d6-413d-bb82-171822e732d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="工具类">
+      <UniqueIdentifier>{2bedf4ba-11d7-4bd3-9df4-7753989d291d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="httpd.cpp">
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="FormDataFile.h">
       <Filter>类\头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Algorithm.hpp">
+      <Filter>工具类</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@ window.onload = function () {
 
   const submit = document.querySelector("#button");
 
+  // 发送POST请求
   submit.addEventListener("click", function () {
     let formData = new FormData();
     formData.append("name", "zs");
@@ -30,6 +31,7 @@ window.onload = function () {
   const fileinput = document.querySelector("#file");
   const uploadButton = document.querySelector("#uploadfile");
 
+  // 上传文件
   uploadButton.onclick = function () {
     const file = fileinput.files[0];
     if (!file) return alert("请选择一个文件");
@@ -51,6 +53,23 @@ window.onload = function () {
     xhr.send(formData);
 
     console.log(file);
+  }
+
+  const sendjson = document.querySelector("#sendjson");
+  sendjson.onclick = function () {
+
+    const xhr = new XMLHttpRequest();
+    xhr.addEventListener("load", function () {
+      console.log(xhr.response);
+    });
+
+    
+
+    xhr.open("POST", "http://127.0.0.1:8080/query");
+
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    xhr.send(JSON.stringify({ name: "zs", age: 10 }));
   }
 
 }

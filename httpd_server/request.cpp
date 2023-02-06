@@ -195,10 +195,11 @@ void Request::parseFormData(vector<char>& body)
 			// 判断是文本还是 文件
 			if (partHead.count("filename") > 0) { // 如果存在filename字段，说明是一个文件
 				/* 第一种读取方式 */
-				// startindex = parsePartBody_File(body, part_buff, startindex, start, end);
-				
+				startindex = parsePartBody_File(body, part_buff, startindex, start, end);
+				cout << "上传文件大小：" << part_buff.size() << endl;
 				/* 第二种读取方式 */
-				startindex = get_PartBody_File(body, part_buff, startindex);
+				// startindex = get_PartBody_File(body, part_buff, startindex);
+				
 				FormDataFile file;
 				if (partHead.count("Content-Disposition")) {
 					file.contentDisposition = partHead["Content-Disposition"];

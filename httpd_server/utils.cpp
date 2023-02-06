@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "GZipAssistant.h"
+#include "Algorithm.hpp"
 #include <iostream>
 
 /*MIME类型*/
@@ -38,18 +39,18 @@ void getNetworkError() {
 	int id = WSAGetLastError();
 	switch (id)
 	{
-	case WSANOTINITIALISED: printf("尚未执行成功的 WSAStartup\n"); break;
-	case WSASYSNOTREADY: printf("网络子系统不可用。\n"); break;
-	case WSAHOST_NOT_FOUND: printf("找不到主机。\n"); break;
-	case WSATRY_AGAIN: printf("找不到非授权主机。\n"); break;
-	case WSANO_RECOVERY: printf("这是不可恢复的错误。\n"); break;
-	case WSAEINPROGRESS: printf("操作正在进行中。\n"); break;
-	case WSANO_DATA: printf("有效名称，没有请求类型的数据记录。\n"); break;
-	case WSAEINTR: printf("中断的函数调用。\n"); break;
-	case WSAEPROCLIM: printf("进程过多。\n");
-	case WSAEFAULT: printf("地址错误。\n");
-	case WSAENOTSOCK: printf("无效套接字上的套接字操作。提供的套接字句柄无效。\n");
-	default: printf("未知错误 id = %d\n", id); break;
+	case WSANOTINITIALISED: printf(u8"尚未执行成功的 WSAStartup\n"); break;
+	case WSASYSNOTREADY: printf(u8"网络子系统不可用。\n"); break;
+	case WSAHOST_NOT_FOUND: printf(u8"找不到主机。\n"); break;
+	case WSATRY_AGAIN: printf(u8"找不到非授权主机。\n"); break;
+	case WSANO_RECOVERY: printf(u8"这是不可恢复的错误。\n"); break;
+	case WSAEINPROGRESS: printf(u8"操作正在进行中。\n"); break;
+	case WSANO_DATA: printf(u8"有效名称，没有请求类型的数据记录。\n"); break;
+	case WSAEINTR: printf(u8"中断的函数调用。\n"); break;
+	case WSAEPROCLIM: printf(u8"进程过多。\n");
+	case WSAEFAULT: printf(u8"地址错误。\n");
+	case WSAENOTSOCK: printf(u8"无效套接字上的套接字操作。提供的套接字句柄无效。\n");
+	default: printf(u8"未知错误 id = %d\n", id); break;
 	};
 }
 
@@ -221,40 +222,16 @@ int parsePartHead(vector<char>& body, int index, string& buff, unordered_map<str
 * @return 读取结束的位置
 */
 int parsePartBody_File(vector<char>& body, vector<char>& buff, int index, string& startFlag, string& endFlag) {
-	int startLen = startFlag.length();
-	int endLen = endFlag.length();
-	int len = body.size();
-	int currentIndex = index;
 
-	bool over = false; // 是否读取到分割标志位
+	int currentIndex = index; // 记录当前读取到的位置
+	auto first = body.begin() + currentIndex;
+	auto end = body.end();
+	
+	vector<char> s(first, end);
+	int flag = Algorithm::findSubstring(s, startFlag);
 
-	while (currentIndex < len)
+	while (currentIndex < (flag + index))
 	{
-
-		// 判断是否读取结束
-		if (currentIndex + startLen <= len) {
-			// 截取vector
-			auto first = body.begin() + currentIndex;
-			auto last = body.begin() + currentIndex + startLen;
-			string flag(first, last); // 截取到的内容
-			if (flag == startFlag) {
-				over = true;
-			}
-		}
-
-		if (currentIndex + endLen <= len) {
-			// 截取vector
-			auto first = body.begin() + currentIndex;
-			auto last = body.begin() + currentIndex + endLen;
-			string flag(first, last); // 截取到的内容
-			if (flag == startFlag) {
-				over = true;
-			}
-		}
-
-		if (over) { // 读取结束
-			break;
-		}
 		buff.push_back(body[currentIndex++]); // 保存文件
 	}
 
@@ -265,43 +242,41 @@ int parsePartBody_File(vector<char>& body, vector<char>& buff, int index, string
 
 /**
 * 读取请求体-文本
+* @param sock 套接字
+* @param read_count 读取多少个字节
+* @param body 保存读取到的数据
+* @return 一共读取了多少数据
 */
 int get_body(SOCKET sock, int read_count,string& body) {
 	char c = '\0'; // 保存读取到的一个字符
-	int i = 0; // 下标-  buff[i]
-	int buffLen = read_count + 1;
-	
-	char* buff = new char[buffLen];
-
+	int i = 0;
 	while (i < read_count)
 	{
 		// 从缓冲区中读取一个字符
 		int n = recv(sock, &c, 1, 0);
 		// recv函数返回其实际copy的字节数，大于0表示读取到了字符
 		if (n > 0) {
-			buff[i++] = c;
+			body.push_back(c);
+			i++;
 		}
 		else {
 			getNetworkError();
-			c = '\n';
 		}
 	}
-
-	buff[i] = '\0'; // 结束符
-	body.append(buff);
 
 	return i;
 }
 
 /**
 * 读取请求体-二进制
+* @param sock 套接字
+* @param read_count 读取多少个字节
+* @param body 保存读取到的数据
+* @return 一共读取了多少数据
 */
 int get_body(SOCKET sock, int read_count, vector<char>& body) {
 	char c = '\0'; // 保存读取到的一个字符
 	int i = 0; // 下标-  buff[i]
-	// int buffLen = read_count + 1;
-
-	// char* buff = new char[buffLen];
 
 	while (i < read_count)
 	{
@@ -309,20 +284,14 @@ int get_body(SOCKET sock, int read_count, vector<char>& body) {
 		int n = recv(sock, &c, 1, 0);
 		// recv函数返回其实际copy的字节数，大于0表示读取到了字符
 		if (n > 0) {
-			// buff[i++] = c;
-			i++;
 			body.push_back(c);
+			i++;
 		}
 		else {
 			getNetworkError();
 			c = '\n';
 		}
 	}
-
-	// buff[i] = '\0'; // 结束符
-	
-	// body.append(buff);
-
 	return i;
 }
 
@@ -382,8 +351,8 @@ char* getContentType(const char* path) {
 	
 	// 返回指定的文件类型
 	static char type[32] = { 0 };
-	int len = strlen(path);
-	int i = len;
+	size_t len = strlen(path);
+	size_t i = len;
 	for (i; i > 0; i--) {
 		if (path[i] == '.') {
 			break;
@@ -424,7 +393,7 @@ bool fileToGZIP(string filePath)
 	char buf[1024] = { 0 };
 	string fileStr;
 	
-	printf("开始读取\n");
+	printf(u8"开始读取\n");
 	while (true)
 	{
 		count = fread(buf, sizeof(char), sizeof(buf) - 1, fp);
@@ -435,7 +404,7 @@ bool fileToGZIP(string filePath)
 
 		fileStr.insert(fileStr.length(), buf, count);
 	}
-	printf("一共读取到：%lld字节\n", fileStr.length());
+	printf(u8"一共读取到：%lld字节\n", fileStr.length());
 	fclose(fp);
 	
 	//压缩：
@@ -456,7 +425,7 @@ bool fileToGZIP(string filePath)
 	if (fp == NULL) return false;
 	count = fwrite(pCompressed, sizeof(char), nLencompressed, fp);
 
-	printf("一共写入: %lld \n" ,count);
+	printf(u8"一共写入: %lld \n" ,count);
 	fclose(fp);
 	delete[] pCompressed;
 	return true;
