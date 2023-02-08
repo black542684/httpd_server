@@ -75,7 +75,7 @@ int get_line(SOCKET sock, char* buff, int size) {
 		if (n > 0) {
 			// 由于换行符是\r\n 这种格式，需要判断
 			if (c == '\r') {
-				// 预先读取，查看下一个字符是不是\n  但不会使套接子接收队列中的数据减少
+				// 预先读取，查看下一个字符是不是\n  但不会使套接字接收队列中的数据减少
 				n = recv(sock, &c, 1, MSG_PEEK);
 				if (n > 0 && c == '\n') {
 					n = recv(sock, &c, 1, 0); // 正常读取，下一个 \n
@@ -195,11 +195,11 @@ int parsePartHead(vector<char>& body, int index, string& buff, unordered_map<str
 			else { // Content-Disposition: form-data  以冒号分割
 				tmp = strtok_s(chunk, ":", &outer_ptr_query);
 				key = tmp;
-				delete_space(key);
+				delete_space(key);// 去除字符串两端空格
 
 				tmp = strtok_s(NULL, ":", &outer_ptr_query);
 				value = tmp;
-				delete_space(value);
+				delete_space(value);// 去除字符串两端空格
 			}
 
 
@@ -234,7 +234,7 @@ int parsePartBody_File(vector<char>& body, vector<char>& buff, int index, string
 	{
 		buff.push_back(body[currentIndex++]); // 保存文件
 	}
-
+	// 读取到最后位置会有\r\n这两个字符需要去除
 	buff.pop_back(); // 去除\n
 	buff.pop_back(); // 去除\r
 	return currentIndex;

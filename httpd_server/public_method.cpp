@@ -189,7 +189,7 @@ unsigned WINAPI accept_request(void* arg) {
 	PRINTF(request.getUrl().c_str());
 	
 
-	//关闭socket
+	//关闭客户端socket
 	closesocket(client);
 	return 0;
 }

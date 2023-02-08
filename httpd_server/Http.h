@@ -27,11 +27,13 @@ public:
 public:
 	// 设置静态资源存放路径
 	void setStatic(string path);
+	// 获取静态资源存放路径
 	string getStatic();
 
 	// 存放处理所有请求的函数指针
 	void all(string, HandleFUNC);
-	HandleFUNC all(string); // 获取处理所有请求的函数指针
+	// 获取处理所有请求的函数指针
+	HandleFUNC all(string); 
 
  	// 存放处理GET请求的函数指针
 	void get(string, HandleFUNC); 
@@ -39,6 +41,7 @@ public:
 
 	// 存放处理POST请求的函数指针
 	void post(string, HandleFUNC); 
+	// 获取处理POST请求的函数指针
 	HandleFUNC post(string);
 
 
